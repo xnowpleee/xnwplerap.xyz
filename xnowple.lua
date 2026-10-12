@@ -2408,13 +2408,13 @@ Window:CreateHome({
     Description = "Ujayy Script Hub untuk Ride A Pet.\nVersi V1.0.5 (Free) - by Xnowplee",
 })
 
-local MainTab  = Window:CreateTab("Main Script", "rbxassetid://10723407366")
-local FarmTab  = Window:CreateTab("Farm", "rbxassetid://10709786201")
-local SmartTab = Window:CreateTab("Smart Farm", "rbxassetid://10734951207")
-local CandyTab = Window:CreateTab("Farm Candy", "rbxassetid://10709796085")
-local IntTab   = Window:CreateTab("Integration", "rbxassetid://10734898355")
-local UtilTab  = Window:CreateTab("Utility", "rbxassetid://10734896206")
-local InfoTab  = Window:CreateTab("Info", "rbxassetid://10734897144")
+local MainTab  = Window:CreateTab("Main Script", "rbxassetid://6031075931")   -- home
+local FarmTab  = Window:CreateTab("Farm", "rbxassetid://6031091004")          -- pickaxe
+local SmartTab = Window:CreateTab("Smart Farm", "rbxassetid://6031265976")    -- sparkle
+local CandyTab = Window:CreateTab("Farm Candy", "rbxassetid://6034684930")    -- candy
+local IntTab   = Window:CreateTab("Integration", "rbxassetid://6031094667")   -- link
+local UtilTab  = Window:CreateTab("Utility", "rbxassetid://6031280882")       -- settings
+local InfoTab  = Window:CreateTab("Info", "rbxassetid://6031075925")          -- info
 
 local AuthorSection = MainTab:CreateSection({ Title = "Author", Opened = false })
 AuthorSection:CreateParagraph({ Title = "Xnowplee", Content = "Script Developer | V1.0.5 (Free) | discord.gg/6byStpCzv" })
