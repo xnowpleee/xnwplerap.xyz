@@ -402,13 +402,46 @@ local function makeBar(win, parent, y, onChange)
 		fill.Size = UDim2.fromScale(rel, 1)
 		knob.Position = UDim2.new(rel, 0, 0.5, 0)
 	end
-	local function fromInput(i)
-		local rel = (i.Position.X - bar.AbsolutePosition.X) / math.max(bar.AbsoluteSize.X, 1)
+
+	-- ⭐ FIX: threshold + tap cuma di bar (bukan area hit yang luas)
+	local dragging = false
+	local startPos = nil
+	local THRESHOLD = 10
+
+	local function applyFromX(x)
+		local rel = (x - bar.AbsolutePosition.X) / math.max(bar.AbsoluteSize.X, 1)
 		rel = math.clamp(rel, 0, 1)
 		set(rel)
 		onChange(rel)
 	end
-	track(win, hit, fromInput, fromInput)
+
+	bar.InputBegan:Connect(function(i)
+		if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+			dragging = true
+			startPos = Vector2.new(i.Position.X, i.Position.Y)
+			applyFromX(i.Position.X)
+			local conn
+			conn = i.Changed:Connect(function()
+				if i.UserInputState == Enum.UserInputState.End then
+					dragging = false
+					startPos = nil
+					conn:Disconnect()
+				end
+			end)
+		end
+	end)
+
+	table.insert(win._connections, UserInputService.InputChanged:Connect(function(i)
+		if dragging and startPos then
+			if i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch then
+				local cur = Vector2.new(i.Position.X, i.Position.Y)
+				if (cur - startPos).Magnitude >= THRESHOLD then
+					applyFromX(i.Position.X)
+				end
+			end
+		end
+	end))
+
 	return set
 end
 
@@ -940,18 +973,18 @@ function Window:OnClose(fn) table.insert(self._hooks.close, fn) end
 function Window:OnDestroy(fn) table.insert(self._hooks.destroy, fn) end
 
 function Window:_layout()
-	local w = self.Main.Size.X.Offset
-	local compact = w < 480
-	self._compact = compact
-	local sw = compact and 56 or 170
-	self._sidebar.Size = UDim2.new(0, sw, 1, -16)
-	self._pages.Position = UDim2.fromOffset(sw + 24, 4)
-	self._pages.Size = UDim2.new(1, -(sw + 36), 1, -16)
-	for _, t in ipairs(self._tabs) do
-		t.Label.Visible = not compact
-		t.Badge.Position = compact and UDim2.new(0.5, -12, 0.5, -12) or UDim2.new(0, 8, 0.5, -12)
-	end
-	self._tagHolder.Visible = w >= 470
+    local w = self.Main.Size.X.Offset
+    local compact = w < 620  -- ⭐ ubah: max 620px = compact mode (icon only)
+    self._compact = compact
+    local sw = compact and 56 or 170  -- 56 = icon only, 170 = full
+    self._sidebar.Size = UDim2.new(0, sw, 1, -16)
+    self._pages.Position = UDim2.fromOffset(sw + 24, 4)
+    self._pages.Size = UDim2.new(1, -(sw + 36), 1, -16)
+    for _, t in ipairs(self._tabs) do
+        t.Label.Visible = not compact
+        t.Badge.Position = compact and UDim2.new(0.5, -12, 0.5, -12) or UDim2.new(0, 8, 0.5, -12)
+    end
+    self._tagHolder.Visible = w >= 470
 end
 
 function Window:_refreshTabs()
@@ -981,54 +1014,13 @@ function Window:SelectTab(tab)
 	self:_refreshTabs()
 end
 
-function Window:CreateTab(name, icon)
-	local win = self
-	local tab = setmetatable({ Window = win, Name = name }, Container)
-
-	local btn = create("TextButton", {
-		Size = UDim2.new(1, 0, 0, 40), BackgroundTransparency = 1, Text = "",
-		AutoButtonColor = false, BorderSizePixel = 0, LayoutOrder = #win._tabs + 1,
-	}, win._tabList)
-	corner(btn, 8)
-	local st = create("UIStroke", { Thickness = 1, Enabled = false, Transparency = 0.3 }, btn)
-	local badge = create("Frame", { Size = UDim2.fromOffset(24, 24), Position = UDim2.new(0, 8, 0.5, -12), BorderSizePixel = 0 }, btn)
-	corner(badge, 7)
-	local img = iconId(icon)
-	local glyph
-	if img then
-		glyph = create("ImageLabel", { BackgroundTransparency = 1, Size = UDim2.fromOffset(16, 16), Position = UDim2.fromOffset(4, 4), Image = img }, badge)
-	else
-		glyph = create("TextLabel", {
-			BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1),
-			Text = string.upper(string.sub(name, 1, 1)), Font = Enum.Font.GothamBold, TextSize = 14,
-		}, badge)
-	end
-	local lb = create("TextLabel", {
-		BackgroundTransparency = 1, Text = name, Font = Enum.Font.GothamMedium, TextSize = 14,
-		Position = UDim2.fromOffset(40, 0), Size = UDim2.new(1, -46, 1, 0),
-		TextXAlignment = Enum.TextXAlignment.Left, TextTruncate = Enum.TextTruncate.AtEnd,
-	}, btn)
-
-	local page = create("ScrollingFrame", {
-		BackgroundTransparency = 1, BorderSizePixel = 0, Size = UDim2.fromScale(1, 1),
-		CanvasSize = UDim2.new(), AutomaticCanvasSize = Enum.AutomaticSize.Y,
-		ScrollBarThickness = 3, Visible = false,
-	}, win._pages)
-	bind(win, page, "ScrollBarImageColor3", "Accent")
-	listLayout(page, 8)
-	padding(page, 0, 0, 6, 8)
-
-	tab.Holder, tab.Page, tab.Button, tab.Stroke = page, page, btn, st
-	tab.Label, tab.Badge, tab.Glyph = lb, badge, glyph
-	function tab:Select() win:SelectTab(self) end
-
-	table.insert(win._tabs, tab)
-	btn.MouseButton1Click:Connect(function() win:SelectTab(tab) end)
-	if not win._activeTab then win._activeTab = tab end
-	win:_layout()
-	win:_refreshTabs()
-	return tab
-end
+local MainTab  = Window:CreateTab("Main Script", "rbxassetid://10723407366")  -- 🏠 house
+local FarmTab  = Window:CreateTab("Farm", "rbxassetid://10709786201")        -- ⛏️ pickaxe
+local SmartTab = Window:CreateTab("Smart Farm", "rbxassetid://10734951207")  -- ✨ sparkles
+local CandyTab = Window:CreateTab("Farm Candy", "rbxassetid://10709796085")  -- 🍬 candy
+local IntTab   = Window:CreateTab("Integration", "rbxassetid://10734898355") -- 🔗 link
+local UtilTab = Window:CreateTab("Utility", "rbxassetid://10734896206")   -- ⚙️ settings (atau globe, gpp)
+local InfoTab = Window:CreateTab("Info", "rbxassetid://10734897144")      -- ℹ️ info (atau file, gpp)
 
 function Window:CreateHome(cfg)
 	cfg = cfg or {}
@@ -1481,7 +1473,7 @@ function Ujayy:CreateWindow(cfg)
 	end
 	local scr = screenSize()
 
-	local sz = cfg.Size or (win.IsMobile and UDim2.fromOffset(500, 300) or UDim2.fromOffset(620, 400))
+	local sz = cfg.Size or (win.IsMobile and UDim2.fromOffset(500, 300) or UDim2.fromOffset(560, 400))
 	local minSize = win.IsMobile and Vector2.new(360, 220) or Vector2.new(460, 280)
 	minSize = Vector2.new(math.min(minSize.X, scr.X - 24), math.min(minSize.Y, scr.Y - 24))
 	win.MinSize = minSize
