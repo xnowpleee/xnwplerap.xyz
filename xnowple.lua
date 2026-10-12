@@ -1,15 +1,10 @@
 --==================================================
 -- UJAYY | RIDE A PET | ROBLOX  —  V1.0.5 (Free)
 -- Author: Xnowplee | discord.gg/6byStpCzv
--- UI: Ujayy UI v2 (by Claude) | Logic: ported from p.lua
+-- UI: Ujayy UI v2 | Logic: ported from p.lua
 --==================================================
 
 local Ujayy = (function()
---[[
-    UJAYY UI LIBRARY v2  |  by Xnowplee
-    Rayfield / WindUI inspired  |  Multiple Themes  |  Mobile friendly
-]]
-
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -125,9 +120,7 @@ Ujayy.ThemeNames = { "Dark", "Blue", "Purple", "Red", "Green", "Orange" }
 
 local function create(class, props, parent)
 	local inst = Instance.new(class)
-	for k, v in pairs(props or {}) do
-		inst[k] = v
-	end
+	for k, v in pairs(props or {}) do inst[k] = v end
 	if parent then inst.Parent = parent end
 	return inst
 end
@@ -202,9 +195,7 @@ end
 local function b64decode(data)
 	local chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 	local lookup = {}
-	for i = 1, #chars do
-		lookup[chars:sub(i, i)] = i - 1
-	end
+	for i = 1, #chars do lookup[chars:sub(i, i)] = i - 1 end
 	local out, n = {}, 0
 	local buf, bits = 0, 0
 	for i = 1, #data do
@@ -274,12 +265,8 @@ end
 
 local function mkLabel(win, parent, props, key)
 	local l = create("TextLabel", {
-		BackgroundTransparency = 1,
-		Font = Enum.Font.Gotham,
-		TextSize = 14,
-		Text = "",
-		TextXAlignment = Enum.TextXAlignment.Left,
-		TextYAlignment = Enum.TextYAlignment.Center,
+		BackgroundTransparency = 1, Font = Enum.Font.Gotham, TextSize = 14, Text = "",
+		TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Center,
 	}, parent)
 	for k, v in pairs(props or {}) do l[k] = v end
 	bind(win, l, "TextColor3", key or "Text")
@@ -322,9 +309,7 @@ end
 local function mkElement(self, height)
 	local win = self.Window
 	local f = create("Frame", {
-		Size = UDim2.new(1, 0, 0, height),
-		BorderSizePixel = 0,
-		ClipsDescendants = true,
+		Size = UDim2.new(1, 0, 0, height), BorderSizePixel = 0, ClipsDescendants = true,
 		LayoutOrder = nextOrder(self),
 	}, self.Holder)
 	corner(f, 8)
@@ -402,19 +387,15 @@ local function makeBar(win, parent, y, onChange)
 		fill.Size = UDim2.fromScale(rel, 1)
 		knob.Position = UDim2.new(rel, 0, 0.5, 0)
 	end
-
-	-- ⭐ FIX: threshold + tap cuma di bar (bukan area hit yang luas)
 	local dragging = false
 	local startPos = nil
 	local THRESHOLD = 10
-
 	local function applyFromX(x)
 		local rel = (x - bar.AbsolutePosition.X) / math.max(bar.AbsoluteSize.X, 1)
 		rel = math.clamp(rel, 0, 1)
 		set(rel)
 		onChange(rel)
 	end
-
 	bar.InputBegan:Connect(function(i)
 		if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
 			dragging = true
@@ -430,7 +411,6 @@ local function makeBar(win, parent, y, onChange)
 			end)
 		end
 	end)
-
 	table.insert(win._connections, UserInputService.InputChanged:Connect(function(i)
 		if dragging and startPos then
 			if i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch then
@@ -441,7 +421,6 @@ local function makeBar(win, parent, y, onChange)
 			end
 		end
 	end))
-
 	return set
 end
 
@@ -575,7 +554,6 @@ function Container:CreateToggle(cfg)
 		BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0,
 	}, rail)
 	corner(knob, 7)
-
 	local obj = {}
 	local function render(animate)
 		local col = state and win.Theme.Accent or win.Theme.Sidebar
@@ -590,14 +568,12 @@ function Container:CreateToggle(cfg)
 	end
 	table.insert(win._refreshers, function() render(false) end)
 	render(false)
-
 	function obj:Set(v, silent)
 		state = v and true or false
 		render(true)
 		if not silent then safe(cfg.Callback, state) end
 	end
 	function obj:Get() return state end
-
 	local btn = create("TextButton", { BackgroundTransparency = 1, Text = "", Size = UDim2.fromScale(1, 1) }, f)
 	btn.MouseButton1Click:Connect(function() obj:Set(not state) end)
 	if state then safe(cfg.Callback, state) end
@@ -615,7 +591,6 @@ function Container:CreateSlider(cfg)
 	local H = cfg.Desc and 70 or 56
 	local f, lock = mkElement(self, H)
 	mkHeader(self, f, cfg, 100, true)
-
 	local function fmt(v)
 		return tostring(math.floor(v * 10000 + 0.5) / 10000) .. (cfg.Suffix and (" " .. cfg.Suffix) or "")
 	end
@@ -624,7 +599,6 @@ function Container:CreateSlider(cfg)
 		Position = UDim2.new(1, -100, 0, 6), Size = UDim2.fromOffset(88, 18),
 		TextXAlignment = Enum.TextXAlignment.Right,
 	}, "Accent")
-
 	local setBar
 	local obj = {}
 	local function apply(v, silent)
@@ -683,7 +657,6 @@ function Container:CreateDropdown(cfg)
 	local current = multi and {} or nil
 	local open = false
 	local HEAD, ITEM = elHeight(cfg, 38), 28
-
 	local f, lock = mkElement(self, HEAD)
 	mkHeader(self, f, cfg, 160)
 	local valLabel = mkLabel(win, f, {
@@ -703,10 +676,8 @@ function Container:CreateDropdown(cfg)
 		AutomaticCanvasSize = Enum.AutomaticSize.Y, ScrollBarThickness = 2,
 	}, f)
 	listLayout(list, 2)
-
 	local obj = {}
 	local build
-
 	local function isSel(opt)
 		if multi then return current[opt] == true end
 		return current == opt
@@ -737,7 +708,6 @@ function Container:CreateDropdown(cfg)
 		tween(f, 0.18, { Size = UDim2.new(1, 0, 0, open and (HEAD + listH + 8) or HEAD) })
 		tween(chev, 0.18, { Rotation = open and -90 or 90 })
 	end
-
 	build = function()
 		for _, c in ipairs(list:GetChildren()) do
 			if c:IsA("TextButton") then c:Destroy() end
@@ -765,7 +735,6 @@ function Container:CreateDropdown(cfg)
 			end)
 		end
 	end
-
 	function obj:Set(v, silent)
 		if multi then
 			current = {}
@@ -781,15 +750,12 @@ function Container:CreateDropdown(cfg)
 	end
 	function obj:Refresh(newOptions, keep)
 		options = newOptions or {}
-		if not keep then
-			current = multi and {} or nil
-		end
+		if not keep then current = multi and {} or nil end
 		build()
 		display()
 		if open then resize() end
 	end
 	function obj:Get() return listValue() end
-
 	local def = cfg.Default or cfg.Value
 	if multi then
 		if type(def) == "table" then
@@ -823,7 +789,6 @@ function Container:CreateKeybind(cfg)
 	corner(btn, 6)
 	bind(win, btn, "BackgroundColor3", "Sidebar")
 	bind(win, btn, "TextColor3", "Accent")
-
 	local obj = {}
 	function obj:Set(k, silent)
 		if type(k) == "string" then k = Enum.KeyCode[k] end
@@ -832,7 +797,6 @@ function Container:CreateKeybind(cfg)
 		if not silent then safe(cfg.OnChanged, key) end
 	end
 	function obj:Get() return key and key.Name or nil end
-
 	btn.MouseButton1Click:Connect(function()
 		listening = true
 		btn.Text = "..."
@@ -867,7 +831,6 @@ function Container:CreateColorPicker(cfg)
 	corner(swatch, 5)
 	stroke(swatch, 1, 0.2)
 	local head = create("TextButton", { BackgroundTransparency = 1, Text = "", Size = UDim2.new(1, 0, 0, HEAD) }, f)
-
 	local obj = {}
 	local setH, setS, setV
 	local function apply(silent)
@@ -973,18 +936,18 @@ function Window:OnClose(fn) table.insert(self._hooks.close, fn) end
 function Window:OnDestroy(fn) table.insert(self._hooks.destroy, fn) end
 
 function Window:_layout()
-    local w = self.Main.Size.X.Offset
-    local compact = w < 620  -- ⭐ ubah: max 620px = compact mode (icon only)
-    self._compact = compact
-    local sw = compact and 56 or 170  -- 56 = icon only, 170 = full
-    self._sidebar.Size = UDim2.new(0, sw, 1, -16)
-    self._pages.Position = UDim2.fromOffset(sw + 24, 4)
-    self._pages.Size = UDim2.new(1, -(sw + 36), 1, -16)
-    for _, t in ipairs(self._tabs) do
-        t.Label.Visible = not compact
-        t.Badge.Position = compact and UDim2.new(0.5, -12, 0.5, -12) or UDim2.new(0, 8, 0.5, -12)
-    end
-    self._tagHolder.Visible = w >= 470
+	local w = self.Main.Size.X.Offset
+	local compact = w < 620
+	self._compact = compact
+	local sw = compact and 56 or 170
+	self._sidebar.Size = UDim2.new(0, sw, 1, -16)
+	self._pages.Position = UDim2.fromOffset(sw + 24, 4)
+	self._pages.Size = UDim2.new(1, -(sw + 36), 1, -16)
+	for _, t in ipairs(self._tabs) do
+		t.Label.Visible = not compact
+		t.Badge.Position = compact and UDim2.new(0.5, -12, 0.5, -12) or UDim2.new(0, 8, 0.5, -12)
+	end
+	self._tagHolder.Visible = w >= 470
 end
 
 function Window:_refreshTabs()
@@ -1014,19 +977,55 @@ function Window:SelectTab(tab)
 	self:_refreshTabs()
 end
 
-local MainTab  = Window:CreateTab("Main Script", "rbxassetid://10723407366")  -- 🏠 house
-local FarmTab  = Window:CreateTab("Farm", "rbxassetid://10709786201")        -- ⛏️ pickaxe
-local SmartTab = Window:CreateTab("Smart Farm", "rbxassetid://10734951207")  -- ✨ sparkles
-local CandyTab = Window:CreateTab("Farm Candy", "rbxassetid://10709796085")  -- 🍬 candy
-local IntTab   = Window:CreateTab("Integration", "rbxassetid://10734898355") -- 🔗 link
-local UtilTab = Window:CreateTab("Utility", "rbxassetid://10734896206")   -- ⚙️ settings (atau globe, gpp)
-local InfoTab = Window:CreateTab("Info", "rbxassetid://10734897144")      -- ℹ️ info (atau file, gpp)
+function Window:CreateTab(name, icon)
+	local win = self
+	local tab = setmetatable({ Window = win, Name = name }, Container)
+	local btn = create("TextButton", {
+		Size = UDim2.new(1, 0, 0, 40), BackgroundTransparency = 1, Text = "",
+		AutoButtonColor = false, BorderSizePixel = 0, LayoutOrder = #win._tabs + 1,
+	}, win._tabList)
+	corner(btn, 8)
+	local st = create("UIStroke", { Thickness = 1, Enabled = false, Transparency = 0.3 }, btn)
+	local badge = create("Frame", { Size = UDim2.fromOffset(24, 24), Position = UDim2.new(0, 8, 0.5, -12), BorderSizePixel = 0 }, btn)
+	corner(badge, 7)
+	local img = iconId(icon)
+	local glyph
+	if img then
+		glyph = create("ImageLabel", { BackgroundTransparency = 1, Size = UDim2.fromOffset(16, 16), Position = UDim2.fromOffset(4, 4), Image = img }, badge)
+	else
+		glyph = create("TextLabel", {
+			BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1),
+			Text = string.upper(string.sub(name, 1, 1)), Font = Enum.Font.GothamBold, TextSize = 14,
+		}, badge)
+	end
+	local lb = create("TextLabel", {
+		BackgroundTransparency = 1, Text = name, Font = Enum.Font.GothamMedium, TextSize = 14,
+		Position = UDim2.fromOffset(40, 0), Size = UDim2.new(1, -46, 1, 0),
+		TextXAlignment = Enum.TextXAlignment.Left, TextTruncate = Enum.TextTruncate.AtEnd,
+	}, btn)
+	local page = create("ScrollingFrame", {
+		BackgroundTransparency = 1, BorderSizePixel = 0, Size = UDim2.fromScale(1, 1),
+		CanvasSize = UDim2.new(), AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		ScrollBarThickness = 3, Visible = false,
+	}, win._pages)
+	bind(win, page, "ScrollBarImageColor3", "Accent")
+	listLayout(page, 8)
+	padding(page, 0, 0, 6, 8)
+	tab.Holder, tab.Page, tab.Button, tab.Stroke = page, page, btn, st
+	tab.Label, tab.Badge, tab.Glyph = lb, badge, glyph
+	function tab:Select() win:SelectTab(self) end
+	table.insert(win._tabs, tab)
+	btn.MouseButton1Click:Connect(function() win:SelectTab(tab) end)
+	if not win._activeTab then win._activeTab = tab end
+	win:_layout()
+	win:_refreshTabs()
+	return tab
+end
 
 function Window:CreateHome(cfg)
 	cfg = cfg or {}
 	local win = self
 	local tab = self:CreateTab(cfg.TabName or "Home", cfg.Icon)
-
 	local banner = create("Frame", { Size = UDim2.new(1, 0, 0, 112), BorderSizePixel = 0, ClipsDescendants = true, LayoutOrder = nextOrder(tab) }, tab.Holder)
 	corner(banner, 12)
 	bind(win, banner, "BackgroundColor3", "Banner")
@@ -1037,13 +1036,9 @@ function Window:CreateHome(cfg)
 	mkLabel(win, box, { Text = cfg.Title or "Welcome!", Font = Enum.Font.GothamBold, TextSize = 26, Size = UDim2.new(1, 0, 0, 32), LayoutOrder = 1, TextTruncate = Enum.TextTruncate.AtEnd })
 	mkLabel(win, box, { Text = cfg.Subtitle or "Script Hub", Font = Enum.Font.GothamMedium, TextSize = 16, Size = UDim2.new(1, 0, 0, 22), LayoutOrder = 2, TextTruncate = Enum.TextTruncate.AtEnd }, "Accent")
 	mkLabel(win, box, { Text = "by " .. (cfg.Author or "Unknown"), TextSize = 13, Size = UDim2.new(1, 0, 0, 20), LayoutOrder = 3 }, "SubText")
-
-	local info = tab:CreateSection("Information")
+	local info = tab:CreateSection({ Title = "Information", Opened = false })
 	local grid = create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 56), LayoutOrder = 1 }, info.Holder)
-	create("UIGridLayout", {
-		CellSize = UDim2.new(1 / 3, -6, 1, 0), CellPadding = UDim2.fromOffset(9, 0),
-		SortOrder = Enum.SortOrder.LayoutOrder,
-	}, grid)
+	create("UIGridLayout", { CellSize = UDim2.new(1 / 3, -6, 1, 0), CellPadding = UDim2.fromOffset(9, 0), SortOrder = Enum.SortOrder.LayoutOrder }, grid)
 	local order = 0
 	local function card(title, value)
 		order = order + 1
@@ -1059,10 +1054,8 @@ function Window:CreateHome(cfg)
 	card("Script Name", cfg.ScriptName or "-")
 	card("Author", cfg.Author or "-")
 	local statusLbl = card("Status", cfg.Status or "...")
-
-	local desc = tab:CreateSection("Description")
+	local desc = tab:CreateSection({ Title = "Description", Opened = false })
 	local d = desc:CreateParagraph({ Title = "", Content = cfg.Description or "..." })
-
 	function tab:SetStatus(t) statusLbl.Text = t end
 	function tab:SetDescription(t) d:Set({ Content = t }) end
 	return tab
@@ -1072,8 +1065,7 @@ function Window:CreateSettings(cfg)
 	cfg = cfg or {}
 	local win = self
 	local tab = self:CreateTab(cfg.TabName or "Settings", cfg.Icon)
-
-	local appearance = tab:CreateSection("Appearance")
+	local appearance = tab:CreateSection({ Title = "Appearance", Opened = false })
 	appearance:CreateDropdown({
 		Name = "Theme", Desc = "Ganti warna UI",
 		Options = Ujayy.ThemeNames, Default = self.ThemeName,
@@ -1084,8 +1076,7 @@ function Window:CreateSettings(cfg)
 		Min = 0.6, Max = 1.3, Increment = 0.05, Default = 1,
 		Callback = function(v) win:SetUIScale(v) end,
 	})
-
-	local iface = tab:CreateSection("Interface")
+	local iface = tab:CreateSection({ Title = "Interface", Opened = false })
 	if not self.IsMobile then
 		iface:CreateKeybind({
 			Name = "Toggle Key", Desc = "Tombol show / hide UI", Default = self.ToggleKey,
@@ -1093,8 +1084,7 @@ function Window:CreateSettings(cfg)
 		})
 	end
 	iface:CreateButton({ Name = "Minimize", Desc = "Kecilkan jadi bubble logo", Callback = function() win:Minimize() end })
-
-	local conf = tab:CreateSection("Config")
+	local conf = tab:CreateSection({ Title = "Config", Opened = false })
 	local nameInput = conf:CreateInput({ Name = "Config Name", Default = "default", Placeholder = "nama config" })
 	conf:CreateButton({
 		Name = "Save Config", Desc = "Simpan semua elemen ber-Flag",
@@ -1110,8 +1100,7 @@ function Window:CreateSettings(cfg)
 			win:Notify({ Title = "Config", Content = ok and "Berhasil dimuat!" or tostring(err), Duration = 3 })
 		end,
 	})
-
-	local danger = tab:CreateSection("Danger Zone")
+	local danger = tab:CreateSection({ Title = "Danger Zone", Opened = false })
 	danger:CreateButton({ Name = "Destroy UI", Desc = "Tutup dan hapus UI", Callback = function() win:Destroy() end })
 	return tab
 end
@@ -1232,7 +1221,6 @@ function Window:Dialog(cfg)
 		FillDirection = Enum.FillDirection.Horizontal, HorizontalAlignment = Enum.HorizontalAlignment.Right,
 		VerticalAlignment = Enum.VerticalAlignment.Center, Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder,
 	}, row)
-
 	local closed = false
 	local function close()
 		if closed then return end
@@ -1363,7 +1351,6 @@ function Window:_loader(cfg)
 	local cardScale = create("UIScale", { Scale = 0.85 }, card)
 	tween(card, 0.3, { GroupTransparency = 0 })
 	tween(cardScale, 0.35, { Scale = 1 }, Enum.EasingStyle.Back)
-
 	local trackRing = create("Frame", { Size = UDim2.fromOffset(64, 64), Position = UDim2.new(0.5, -32, 0, 22), BackgroundTransparency = 1 }, card)
 	corner(trackRing, 32)
 	bind(win, stroke(trackRing, 3, 0.75), "Color", "Stroke")
@@ -1383,7 +1370,6 @@ function Window:_loader(cfg)
 		Size = UDim2.fromOffset(34, 34), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, 0, 0, 54),
 	}, "Accent")
 	local lgScale = create("UIScale", {}, lg)
-
 	mkLabel(win, card, {
 		Text = cfg.LoadingTitle or cfg.Name or "Ujayy", Font = Enum.Font.GothamBold, TextSize = 18,
 		Position = UDim2.fromOffset(0, 100), Size = UDim2.new(1, 0, 0, 24), TextXAlignment = Enum.TextXAlignment.Center,
@@ -1402,13 +1388,11 @@ function Window:_loader(cfg)
 	local fill = create("Frame", { Size = UDim2.fromScale(0, 1), BorderSizePixel = 0 }, barBg)
 	corner(fill, 3)
 	bind(win, fill, "BackgroundColor3", "Accent")
-
 	local dur = cfg.LoadingDuration or 2.6
 	local steps = cfg.LoadingSteps or { "Initializing...", "Loading assets...", "Building interface...", "Applying theme...", "Ready!" }
 	local t0 = os.clock()
 	local conn
 	local finished = false
-
 	local function finish()
 		task.delay(0.25, function()
 			if win._destroyed then return end
@@ -1420,7 +1404,6 @@ function Window:_loader(cfg)
 			win:_reveal()
 		end)
 	end
-
 	conn = RunService.Heartbeat:Connect(function()
 		local el = os.clock() - t0
 		grad.Rotation = (el * 360) % 360
@@ -1452,7 +1435,6 @@ function Ujayy:CreateWindow(cfg)
 	win.Window = win
 	win.ToggleKey = cfg.ToggleKey or Enum.KeyCode.RightShift
 	win.LogoImage = getLogo(cfg.Logo)
-
 	local guiParent = getGuiParent()
 	local old = guiParent:FindFirstChild("UjayyUI")
 	if old then old:Destroy() end
@@ -1462,7 +1444,6 @@ function Ujayy:CreateWindow(cfg)
 	})
 	gui.Parent = guiParent
 	win.Gui = gui
-
 	local function screenSize()
 		local s = gui.AbsoluteSize
 		if s.X < 10 then
@@ -1472,14 +1453,12 @@ function Ujayy:CreateWindow(cfg)
 		return s
 	end
 	local scr = screenSize()
-
 	local sz = cfg.Size or (win.IsMobile and UDim2.fromOffset(500, 300) or UDim2.fromOffset(560, 400))
 	local minSize = win.IsMobile and Vector2.new(360, 220) or Vector2.new(460, 280)
 	minSize = Vector2.new(math.min(minSize.X, scr.X - 24), math.min(minSize.Y, scr.Y - 24))
 	win.MinSize = minSize
 	local w = math.max(math.min(sz.X.Offset, scr.X - 24), minSize.X)
 	local h = math.max(math.min(sz.Y.Offset, scr.Y - 24), minSize.Y)
-
 	local main = create("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.fromOffset(w, h), BorderSizePixel = 0, ClipsDescendants = true, Visible = false,
@@ -1490,7 +1469,6 @@ function Ujayy:CreateWindow(cfg)
 	bind(win, ms, "Color", "Accent")
 	local uiScale = create("UIScale", { Scale = 1 }, main)
 	win.Main, win._uiScale = main, uiScale
-
 	local header = create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 56) }, main)
 	logoNode(win, header, { Size = UDim2.fromOffset(34, 34), Position = UDim2.fromOffset(14, 11) }, "Accent")
 	win._title = mkLabel(win, header, {
@@ -1509,7 +1487,6 @@ function Ujayy:CreateWindow(cfg)
 		FillDirection = Enum.FillDirection.Horizontal, HorizontalAlignment = Enum.HorizontalAlignment.Right,
 		Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder,
 	}, win._tagHolder)
-
 	local function winButton(xOff, kind, cb)
 		local b = create("TextButton", {
 			BackgroundTransparency = 1, Text = "", Size = UDim2.fromOffset(30, 30),
@@ -1525,8 +1502,7 @@ function Ujayy:CreateWindow(cfg)
 			corner(fr, 1)
 			bind(win, fr, "BackgroundColor3", "Text")
 		end
-		if kind == "min" then
-			bar(12, 2, 0)
+		if kind == "min" then bar(12, 2, 0)
 		elseif kind == "max" then
 			local sq = create("Frame", {
 				Size = UDim2.fromOffset(11, 11), AnchorPoint = Vector2.new(0.5, 0.5),
@@ -1535,8 +1511,7 @@ function Ujayy:CreateWindow(cfg)
 			corner(sq, 2)
 			bind(win, stroke(sq, 2, 0), "Color", "Text")
 		else
-			bar(15, 2, 45)
-			bar(15, 2, -45)
+			bar(15, 2, 45); bar(15, 2, -45)
 		end
 		b.MouseEnter:Connect(function() tween(b, 0.12, { BackgroundTransparency = 0.88 }) end)
 		b.MouseLeave:Connect(function() tween(b, 0.12, { BackgroundTransparency = 1 }) end)
@@ -1547,7 +1522,6 @@ function Ujayy:CreateWindow(cfg)
 	end)
 	winButton(-74, "max", function() win:Maximize() end)
 	winButton(-108, "min", function() win:Minimize() end)
-
 	local body = create("Frame", { BackgroundTransparency = 1, Position = UDim2.fromOffset(0, 56), Size = UDim2.new(1, 0, 1, -56) }, main)
 	local sidebar = create("Frame", { Position = UDim2.fromOffset(12, 4), Size = UDim2.new(0, 170, 1, -16), BorderSizePixel = 0 }, body)
 	corner(sidebar, 12)
@@ -1564,7 +1538,6 @@ function Ujayy:CreateWindow(cfg)
 		BackgroundTransparency = 1, Position = UDim2.fromOffset(194, 4),
 		Size = UDim2.new(1, -206, 1, -16), ClipsDescendants = true,
 	}, body)
-
 	local grip = create("Frame", {
 		AnchorPoint = Vector2.new(1, 1), Position = UDim2.new(1, -3, 1, -3), Size = UDim2.fromOffset(24, 24),
 		BackgroundTransparency = 1, Active = true, ZIndex = 10,
@@ -1600,9 +1573,7 @@ function Ujayy:CreateWindow(cfg)
 	end, function()
 		rsStart = nil
 	end)
-
 	main:GetPropertyChangedSignal("Size"):Connect(function() win:_layout() end)
-
 	local dStart, dPos
 	track(win, header, function(i)
 		if win._maximized then return end
@@ -1615,7 +1586,6 @@ function Ujayy:CreateWindow(cfg)
 	end, function()
 		dStart = nil
 	end)
-
 	local bubble = create("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromOffset(40, math.floor(scr.Y * 0.45)),
 		Size = UDim2.fromOffset(50, 50), BorderSizePixel = 0, Visible = false, Active = true, ZIndex = 5,
@@ -1648,17 +1618,14 @@ function Ujayy:CreateWindow(cfg)
 		if bStart and not bMoved then win:Restore() end
 		bStart = nil
 	end)
-
 	table.insert(win._connections, UserInputService.InputBegan:Connect(function(i, gp)
 		if not gp and i.KeyCode == win.ToggleKey and win._ready then win:Toggle() end
 	end))
-
 	win._notifHolder = create("Frame", {
 		BackgroundTransparency = 1, AnchorPoint = Vector2.new(1, 1), Position = UDim2.new(1, -16, 1, -16),
 		Size = UDim2.fromOffset(260, 400), ZIndex = 100,
 	}, gui)
 	listLayout(win._notifHolder, 8).VerticalAlignment = Enum.VerticalAlignment.Bottom
-
 	win:_layout()
 	if cfg.LoadingScreen == false then
 		win:_reveal()
@@ -1710,30 +1677,23 @@ local RARITY_TIER = { Common=1, Rare=2, Epic=3, Legendary=4, Mythic=5, Divine=6,
 
 local state = {
     infJump = false, speedValue = 16, jumpValue = 50,
-    mutationWait = 10,
-    baseEggPos = nil, baseCandyPos = nil,
+    mutationWait = 10, baseEggPos = nil, baseCandyPos = nil,
     candyAutoCollect = false, candyReturnBase = true,
     candyIncludePumpkin = true, candyIncludeRitual = false,
     candyLoopMode = false, candyPickupDelay = 0.15,
-    candyBetweenDelay = 1.5, candyCooldownPerCandy = 2,
-    candyRunning = false,
+    candyBetweenDelay = 1.5, candyCooldownPerCandy = 2, candyRunning = false,
     espEgg = false, espCandy = false, espPlayer = false, espYinYang = false,
-    noclip = false,
-    useMutation = false,
-    instantSpam = 20,
-    instantSpamDelay = 0.05,
-    instantBreakOffset = 1,
+    noclip = false, useMutation = false,
+    instantSpam = 20, instantSpamDelay = 0.05, instantBreakOffset = 1,
     SAFE_POS     = Vector3.new(-5049, 41261, -3541),
     ALT_SAFE_POS = Vector3.new(-4990, 41274, -3649),
     TITIK_EGG    = Vector3.new(-5327, 40912, -3578),
     KAWAH        = Vector3.new(-5102, 41415, -3489),
     hideGarden = false, noLag = false, boostFps = false,
     webhookURL = "", webhookRarity = "Mythic",
-    stats = {
-        farmed = 0, skipped = 0, startTime = os.clock(),
+    stats = { farmed = 0, skipped = 0, startTime = os.clock(),
         rarityCount = { Common=0, Rare=0, Epic=0, Legendary=0, Mythic=0, Divine=0, Ethereal=0 },
-        bestEgg = nil,
-    },
+        bestEgg = nil },
 }
 
 local candyRespawnAt, candyAmounts, candyLastCollect = {}, {}, {}
@@ -1771,8 +1731,7 @@ local function ScanAllEggs()
         if IsHiddenRarity(name) then return end
         local pos = GetEggPos(o)
         if pos then
-            table.insert(eggs, { model=o, name=name, pos=pos,
-                weight=GetEggWeight(o) or 0, rarity=GetRarity(name) })
+            table.insert(eggs, { model=o, name=name, pos=pos, weight=GetEggWeight(o) or 0, rarity=GetRarity(name) })
         end
     end
     local r = workspace:FindFirstChild("RenderedEggs")
@@ -1797,9 +1756,7 @@ local function TP(pos)
     local hrp = GetChar(); if not hrp then return false end
     local now = tick()
     local waitNeeded = 0.08 + math.random() * 0.04
-    if now - lastTP < waitNeeded then
-        task.wait(waitNeeded - (now - lastTP))
-    end
+    if now - lastTP < waitNeeded then task.wait(waitNeeded - (now - lastTP)) end
     lastTP = tick()
     hrp.CFrame = CFrame.new(pos)
     hrp.AssemblyLinearVelocity = Vector3.new(0,0,0)
@@ -1835,7 +1792,6 @@ local function PickupEgg(eggModel)
     if not EggPickup then return false end
     return pcall(function() EggPickup:FireServer(eggModel.Name) end)
 end
-
 local function ApplyInstantBypass()
     local basket = LocalPlayer:FindFirstChild("Basket")
     if not basket then return 0 end
@@ -1852,27 +1808,21 @@ local function ApplyInstantBypass()
     end
     return count
 end
-
 local function FireInstantClaim()
     if not EggArrivalClaim then return false end
     local basket = LocalPlayer:FindFirstChild("Basket")
     if not basket then return false end
     local ids = {}
-    for _, egg in ipairs(basket:GetChildren()) do
-        table.insert(ids, egg.Name)
-    end
+    for _, egg in ipairs(basket:GetChildren()) do table.insert(ids, egg.Name) end
     if #ids == 0 then return false end
     local basePos = AutoGetBaseplate() or (GetChar() and GetChar().Position)
     if not basePos then return false end
     for i = 1, state.instantSpam do
-        pcall(function()
-            EggArrivalClaim:FireServer(workspace:GetServerTimeNow(), basePos, ids)
-        end)
+        pcall(function() EggArrivalClaim:FireServer(workspace:GetServerTimeNow(), basePos, ids) end)
         task.wait(state.instantSpamDelay)
     end
     return true
 end
-
 local WebhookQueue = { items = {}, processing = false }
 local function ProcessWebhookQueue()
     if WebhookQueue.processing then return end
@@ -1880,9 +1830,7 @@ local function ProcessWebhookQueue()
     task.spawn(function()
         while #WebhookQueue.items > 0 do
             local item = table.remove(WebhookQueue.items, 1)
-            pcall(function()
-                HttpService:PostAsync(item.url, item.body, Enum.HttpContentType.ApplicationJson)
-            end)
+            pcall(function() HttpService:PostAsync(item.url, item.body, Enum.HttpContentType.ApplicationJson) end)
             task.wait(0.6)
         end
         WebhookQueue.processing = false
@@ -1893,44 +1841,31 @@ local function SendWebhook(eggName, rarity, weight)
     if (RARITY_TIER[rarity] or 0) < (RARITY_TIER[state.webhookRarity] or 5) then return end
     local data = {
         username = "Ujayy Notifier",
-        embeds = {{
-            title = "Rare Egg Found!",
-            color = 0x0091FF,
+        embeds = {{ title = "Rare Egg Found!", color = 0x0091FF,
             fields = {
                 { name="Player", value=LocalPlayer.Name, inline=true },
-                { name="Egg",    value=eggName,           inline=true },
-                { name="Rarity", value=rarity,            inline=true },
+                { name="Egg", value=eggName, inline=true },
+                { name="Rarity", value=rarity, inline=true },
                 { name="Weight", value=string.format("%.1f kg", weight or 0), inline=true },
             },
             footer = { text = "Ujayy V1.0.5" },
             timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ"),
         }}
     }
-    table.insert(WebhookQueue.items, {
-        url = state.webhookURL,
-        body = HttpService:JSONEncode(data),
-    })
+    table.insert(WebhookQueue.items, { url = state.webhookURL, body = HttpService:JSONEncode(data) })
     ProcessWebhookQueue()
 end
-
 local function IsValidated()
-    return LocalPlayer:GetAttribute("VolcanoValidated") == true
-       and LocalPlayer:GetAttribute("InVolcano") == true
+    return LocalPlayer:GetAttribute("VolcanoValidated") == true and LocalPlayer:GetAttribute("InVolcano") == true
 end
 local function PrepareVolcano()
     local hrp = GetChar(); if not hrp then return false end
     hrp.CFrame = CFrame.new(state.SAFE_POS); hrp.AssemblyLinearVelocity = Vector3.new(0,0,0)
     local t = tick()
-    while tick() - t < 2.5 do
-        if IsValidated() then return true end
-        task.wait(0.1)
-    end
+    while tick() - t < 2.5 do if IsValidated() then return true end task.wait(0.1) end
     hrp.CFrame = CFrame.new(state.ALT_SAFE_POS); hrp.AssemblyLinearVelocity = Vector3.new(0,0,0)
     t = tick()
-    while tick() - t < 2.5 do
-        if IsValidated() then return true end
-        task.wait(0.1)
-    end
+    while tick() - t < 2.5 do if IsValidated() then return true end task.wait(0.1) end
     return false
 end
 local function TPTrigger()
@@ -1986,19 +1921,16 @@ local function RecordFarm(egg)
     Notif("Egg Farmed!", string.format("[%s] %s (%.1f kg)", r, egg.name, w), 3)
     task.spawn(function() SendWebhook(egg.name, r, w) end)
 end
-
 local function ProcessNormalEgg(egg)
     UnequipAll(); task.wait(0.1)
     TP(egg.pos + Vector3.new(0, 3, 0)); task.wait(0.3)
     PickupEgg(egg.model); task.wait(0.5)
-
     local basket = LocalPlayer:FindFirstChild("Basket")
     local waitStart = tick()
     while tick() - waitStart < 3 do
         if basket and #basket:GetChildren() > 0 then break end
         task.wait(0.1)
     end
-
     if state.useMutation then
         print("[FARM] Mode: MUTASI KAWAH")
         TP(state.KAWAH + Vector3.new(0, 10, 0)); task.wait(0.2)
@@ -2011,13 +1943,9 @@ local function ProcessNormalEgg(egg)
         task.wait(0.3)
         if EggArrivalClaim and basket and state.baseEggPos then
             local ids = {}
-            for _, e in ipairs(basket:GetChildren()) do
-                table.insert(ids, e.Name)
-            end
+            for _, e in ipairs(basket:GetChildren()) do table.insert(ids, e.Name) end
             if #ids > 0 then
-                pcall(function()
-                    EggArrivalClaim:FireServer(workspace:GetServerTimeNow(), state.baseEggPos, ids)
-                end)
+                pcall(function() EggArrivalClaim:FireServer(workspace:GetServerTimeNow(), state.baseEggPos, ids) end)
             end
         end
     else
@@ -2049,7 +1977,6 @@ local function ProcessVolcanicEgg()
     if not ok then return end
     TP(egg.pos + Vector3.new(0, 3, 0)); task.wait(0.4)
     PickupEgg(egg.model); task.wait(0.5)
-
     local basket = LocalPlayer:FindFirstChild("Basket")
     if state.useMutation then
         if not state.baseEggPos then state.baseEggPos = AutoGetBaseplate() end
@@ -2069,7 +1996,6 @@ local function ProcessVolcanicEgg()
     end
     RecordFarm(egg)
 end
-
 local FarmSingle = { selectedEggObj = nil, isRunning = false }
 function FarmSingle.SelectEgg(eggName)
     FarmSingle.selectedEggObj = nil
@@ -2084,16 +2010,12 @@ function FarmSingle.Start()
     FarmSingle.isRunning = true
     task.spawn(function()
         local egg = FarmSingle.selectedEggObj
-        if string.find(string.lower(egg.name), "volcanic") then
-            ProcessVolcanicEgg()
-        else
-            ProcessNormalEgg(egg)
-        end
+        if string.find(string.lower(egg.name), "volcanic") then ProcessVolcanicEgg()
+        else ProcessNormalEgg(egg) end
         FarmSingle.isRunning = false
     end)
 end
 function FarmSingle.Stop() FarmSingle.isRunning = false end
-
 local SmartFarm = {
     mode = false, running = false,
     filterRarity = { Epic=true, Legendary=true, Mythic=true, Divine=true, Ethereal=true },
@@ -2140,7 +2062,6 @@ function SmartFarm.Start()
     end)
 end
 function SmartFarm.Stop() SmartFarm.mode = false end
-
 local function CandyApplySnapshot()
     if not GetCandyState then return end
     local ok, result = pcall(function() return GetCandyState:InvokeServer() end)
@@ -2181,15 +2102,11 @@ local function FindCandyList()
         if obj:IsA("BasePart") and obj:HasTag("HalloweenCandySpawn") then
             local isRitual  = obj:GetAttribute("RitualDrop") == true
             local isPumpkin = obj:GetAttribute("PumpkinDrop") == true
-            local skip = (isRitual and not state.candyIncludeRitual)
-                      or (isPumpkin and not state.candyIncludePumpkin)
+            local skip = (isRitual and not state.candyIncludeRitual) or (isPumpkin and not state.candyIncludePumpkin)
             if not skip then
                 local id = obj:GetAttribute("Id")
                 if type(id) ~= "string" or id == "" then id = obj:GetFullName() end
-                table.insert(list, {
-                    part = obj, id = id, pos = obj.Position,
-                    isRitual = isRitual, isPumpkin = isPumpkin,
-                })
+                table.insert(list, { part = obj, id = id, pos = obj.Position, isRitual = isRitual, isPumpkin = isPumpkin })
             end
         end
     end
@@ -2264,7 +2181,6 @@ local function CandyCycleLoop()
         state.candyRunning = false
     end)
 end
-
 local RenderedEggESP, RenderedCandyESP, RenderedPlayerESP, RenderedYinYangESP = {}, {}, {}, {}
 local function ClearTable(tbl)
     for k, data in pairs(tbl) do
@@ -2492,11 +2408,18 @@ Window:CreateHome({
     Description = "Ujayy Script Hub untuk Ride A Pet.\nVersi V1.0.5 (Free) - by Xnowplee",
 })
 
-local MainTab = Window:CreateTab("Main Script")
-local AuthorSection = MainTab:CreateSection({ Title = "Author", Opened = true })
+local MainTab  = Window:CreateTab("Main Script", "rbxassetid://10723407366")
+local FarmTab  = Window:CreateTab("Farm", "rbxassetid://10709786201")
+local SmartTab = Window:CreateTab("Smart Farm", "rbxassetid://10734951207")
+local CandyTab = Window:CreateTab("Farm Candy", "rbxassetid://10709796085")
+local IntTab   = Window:CreateTab("Integration", "rbxassetid://10734898355")
+local UtilTab  = Window:CreateTab("Utility", "rbxassetid://10734896206")
+local InfoTab  = Window:CreateTab("Info", "rbxassetid://10734897144")
+
+local AuthorSection = MainTab:CreateSection({ Title = "Author", Opened = false })
 AuthorSection:CreateParagraph({ Title = "Xnowplee", Content = "Script Developer | V1.0.5 (Free) | discord.gg/6byStpCzv" })
 
-local MoveSection = MainTab:CreateSection("Movement")
+local MoveSection = MainTab:CreateSection({ Title = "Movement", Opened = true })
 local infJumpToggle = MoveSection:CreateToggle({
     Name = "Infinite Jump", Desc = "Enable infinite jump", Default = false,
     Callback = function(v) state.infJump = v end,
@@ -2532,7 +2455,6 @@ UserInputService.JumpRequest:Connect(function()
     end
 end)
 
-local FarmTab = Window:CreateTab("Farm")
 local ModeSection = FarmTab:CreateSection({ Title = "Mode Farm", Opened = true })
 ModeSection:CreateToggle({
     Name = "Mutasi Kawah Dulu",
@@ -2549,7 +2471,7 @@ ModeSection:CreateParagraph({
     Content = "ON = Pickup → Drop kawah → Tunggu → Balik → Claim\nOFF = Pickup → Spoof Attribute → Balik → Spam Claim",
 })
 
-local BypassSection = FarmTab:CreateSection("Bypass Settings")
+local BypassSection = FarmTab:CreateSection({ Title = "Bypass Settings", Opened = false })
 BypassSection:CreateSlider({ Name = "Spam Claim Count", Min = 1, Max = 50, Default = 20, Callback = function(v) state.instantSpam = v end })
 BypassSection:CreateSlider({ Name = "Spam Delay (s)", Min = 0.02, Max = 0.5, Increment = 0.01, Default = 0.05, Callback = function(v) state.instantSpamDelay = v end })
 BypassSection:CreateSlider({ Name = "BreakAt Offset (s)", Min = 0.5, Max = 30, Increment = 0.5, Default = 1, Callback = function(v) state.instantBreakOffset = v end })
@@ -2581,7 +2503,7 @@ FarmSection:CreateButton({
 FarmSection:CreateButton({ Name = "Start Farm (1x)", Callback = function() FarmSingle.Start() end })
 FarmSection:CreateButton({ Name = "Stop Farm", Callback = function() FarmSingle.Stop() end })
 
-local VolcanicSection = FarmTab:CreateSection("Volcanic")
+local VolcanicSection = FarmTab:CreateSection({ Title = "Volcanic", Opened = false })
 VolcanicSection:CreateToggle({
     Name = "Enable Noclip", Desc = "Anti-collision", Default = false,
     Callback = function(v)
@@ -2604,14 +2526,13 @@ end })
 
 task.spawn(function() while task.wait(5) do pcall(function() eggDropdown:Refresh(getEggOptions()) end) end end)
 
-local SmartTab = Window:CreateTab("Smart Farm")
 local SmartSection = SmartTab:CreateSection({ Title = "Smart Farm", Opened = true })
 SmartSection:CreateToggle({
     Name = "Enable Smart Auto Farm", Desc = "Auto cycle farm", Default = false,
     Callback = function(v) if v then SmartFarm.Start() else SmartFarm.Stop() end end,
 })
 
-local FilterSection = SmartTab:CreateSection("Filter Rarity")
+local FilterSection = SmartTab:CreateSection({ Title = "Filter Rarity", Opened = false })
 FilterSection:CreateDropdown({
     Name = "Rarity yang di-farm", Multi = true,
     Options = { "Epic", "Legendary", "Mythic", "Divine", "Ethereal" },
@@ -2628,7 +2549,7 @@ FilterSection:CreateSlider({
     Callback = function(v) SmartFarm.minWeight = v end,
 })
 
-local PrioritySection = SmartTab:CreateSection("Priority")
+local PrioritySection = SmartTab:CreateSection({ Title = "Priority", Opened = false })
 PrioritySection:CreateDropdown({
     Name = "Priority Mode", Options = { "Rarity", "Weight", "Nearest" }, Default = "Rarity",
     Callback = function(v) SmartFarm.priority = v end,
@@ -2638,7 +2559,6 @@ PrioritySection:CreateSlider({
     Callback = function(v) SmartFarm.cycleDelay = v end,
 })
 
-local CandyTab = Window:CreateTab("Farm Candy")
 local CandySection = CandyTab:CreateSection({ Title = "Auto Candy", Opened = true })
 CandySection:CreateToggle({
     Name = "Auto Collect Candy", Default = false,
@@ -2660,7 +2580,7 @@ CandySection:CreateToggle({ Name = "Balik Base Setelah Pickup", Default = true, 
 CandySection:CreateToggle({ Name = "Include Pumpkin Drop", Default = true, Callback = function(v) state.candyIncludePumpkin = v end })
 CandySection:CreateToggle({ Name = "Include Ritual Drop", Default = false, Callback = function(v) state.candyIncludeRitual = v end })
 
-local CandyDelaySection = CandyTab:CreateSection("Delay")
+local CandyDelaySection = CandyTab:CreateSection({ Title = "Delay", Opened = false })
 CandyDelaySection:CreateSlider({ Name = "Pickup Delay", Min = 0.05, Max = 1, Increment = 0.05, Default = 0.15, Callback = function(v) state.candyPickupDelay = v end })
 CandyDelaySection:CreateSlider({ Name = "Antar Candy Delay", Min = 0.5, Max = 5, Increment = 0.5, Default = 1.5, Callback = function(v) state.candyBetweenDelay = v end })
 CandyDelaySection:CreateSlider({ Name = "Cooldown Per Candy", Min = 0.5, Max = 5, Increment = 0.5, Default = 2, Callback = function(v) state.candyCooldownPerCandy = v end })
@@ -2674,7 +2594,6 @@ CandyDelaySection:CreateButton({
     end,
 })
 
-local IntTab = Window:CreateTab("Integration")
 local EspSection = IntTab:CreateSection({ Title = "ESP", Opened = true })
 EspSection:CreateToggle({
     Name = "ESP Egg (Rarity + Weight)", Default = false,
@@ -2714,16 +2633,14 @@ EspSection:CreateButton({
         local sockets = FindYinYangSockets()
         print("═══ YinYang Debug ═══")
         print("Total:", #sockets)
-        for i, s in ipairs(sockets) do
-            print(i, s:GetFullName(), "| Parent:", s.Parent and s.Parent.Name or "nil")
-        end
+        for i, s in ipairs(sockets) do print(i, s:GetFullName()) end
         print("RitualSealVisuals exists:", workspace:FindFirstChild("RitualSealVisuals") ~= nil)
         print("═══════════════════")
         Notif("YinYang Debug", "Found " .. #sockets .. " socket(s)", 4)
     end,
 })
 
-local BaseSection = IntTab:CreateSection("Simpen Base")
+local BaseSection = IntTab:CreateSection({ Title = "Simpen Base", Opened = false })
 BaseSection:CreateButton({
     Name = "Simpen Base Buat Egg",
     Callback = function()
@@ -2741,7 +2658,7 @@ BaseSection:CreateButton({
     end,
 })
 
-local WebhookSection = IntTab:CreateSection("Webhook Discord")
+local WebhookSection = IntTab:CreateSection({ Title = "Webhook Discord", Opened = false })
 WebhookSection:CreateInput({
     Name = "Webhook URL", Placeholder = "https://discord.com/api/webhooks/...",
     Callback = function(t) state.webhookURL = t end,
@@ -2760,14 +2677,12 @@ WebhookSection:CreateButton({
     end,
 })
 
-local UtilTab = Window:CreateTab("Utility")
 local ServerSection = UtilTab:CreateSection({ Title = "Server", Opened = true })
 ServerSection:CreateButton({
     Name = "Server Hop",
     Callback = function()
         local ok, servers = pcall(function()
-            return HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/"..
-                game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100"))
+            return HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100"))
         end)
         if ok and servers and servers.data then
             for _, s in ipairs(servers.data) do
@@ -2781,7 +2696,7 @@ ServerSection:CreateButton({
 })
 ServerSection:CreateButton({ Name = "Rejoin", Callback = function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end })
 
-local PerfSection = UtilTab:CreateSection("Performance")
+local PerfSection = UtilTab:CreateSection({ Title = "Performance", Opened = false })
 PerfSection:CreateToggle({
     Name = "No Lag", Default = false,
     Callback = function(v)
@@ -2821,19 +2736,18 @@ PerfSection:CreateToggle({
     end,
 })
 
-local TPSection = UtilTab:CreateSection("Teleport")
+local TPSection = UtilTab:CreateSection({ Title = "Teleport", Opened = true })
 TPSection:CreateButton({ Name = "TP ke Base", Callback = function() local bp = AutoGetBaseplate() if bp then TP(bp) end end })
 TPSection:CreateButton({ Name = "TP ke Volcano", Callback = function() TP(state.KAWAH + Vector3.new(0, 10, 0)) end })
 TPSection:CreateButton({ Name = "TP ke TITIK EGG", Callback = function() TP(state.TITIK_EGG + Vector3.new(0, 5, 0)) end })
 
-local InfoTab = Window:CreateTab("Info")
-local AboutSection = InfoTab:CreateSection({ Title = "About", Opened = true })
+local AboutSection = InfoTab:CreateSection({ Title = "About", Opened = false })
 AboutSection:CreateParagraph({
     Title = "Ujayy | Ride A Pet | Roblox",
-    Content = "Version: V1.0.5 (Free)\nAuthor: Xnowplee\nUI: Ujayy UI v2 (by Claude)\nLogic: ported from p.lua",
+    Content = "Version: V1.0.5 (Free)\nAuthor: Xnowplee\nUI: Ujayy UI v2\nLogic: ported from p.lua",
 })
 
-local DiscordSection = InfoTab:CreateSection("Discord Community")
+local DiscordSection = InfoTab:CreateSection({ Title = "Discord Community", Opened = false })
 DiscordSection:CreateParagraph({ Title = "Join Our Discord", Content = "https://discord.gg/6byStpCzv" })
 DiscordSection:CreateButton({
     Name = "Copy Discord Link",
@@ -2847,7 +2761,7 @@ DiscordSection:CreateButton({
     end,
 })
 
-local DebugSection = InfoTab:CreateSection("Debug")
+local DebugSection = InfoTab:CreateSection({ Title = "Debug", Opened = false })
 DebugSection:CreateButton({
     Name = "Debug All (Print Info)",
     Callback = function()
@@ -2860,10 +2774,6 @@ DebugSection:CreateButton({
         print("Players:", #Players:GetPlayers())
         print("Speed:", state.speedValue, "| Jump:", state.jumpValue)
         print("Inf Jump:", state.infJump, "| Noclip:", state.noclip)
-        print("ESP Egg:", state.espEgg, "| Candy:", state.espCandy, "| Player:", state.espPlayer, "| YinYang:", state.espYinYang)
-        print("Smart Farm:", SmartFarm.mode)
-        print("Stats Farmed:", state.stats.farmed)
-        print("InHalloweenZone:", LocalPlayer:GetAttribute("InHalloweenZone"))
         print("═══════════════════════")
         Notif("Debug", "Info printed", 3)
     end,
@@ -2873,8 +2783,7 @@ DebugSection:CreateButton({
     Name = "Test Dialog",
     Callback = function()
         Window:Dialog({
-            Title = "Dialog Test",
-            Content = "Ini contoh dialog bawaan Ujayy UI.",
+            Title = "Dialog Test", Content = "Ini contoh dialog bawaan Ujayy UI.",
             Buttons = { { Title = "OK", Variant = "Primary" } },
         })
     end,
