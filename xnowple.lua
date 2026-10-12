@@ -436,7 +436,7 @@ function Container:CreateSection(arg)
 		BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0),
 		AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = nextOrder(self),
 	}, self.Holder)
-	listLayout(wrapper, 8)
+	listLayout(wrapper, 0)
 
 	local head = create("TextButton", {
 		BackgroundTransparency = 1, Text = "", Size = UDim2.new(1, 0, 0, 26),
@@ -456,20 +456,109 @@ function Container:CreateSection(arg)
 		TextXAlignment = Enum.TextXAlignment.Center, Rotation = opened and 90 or 0,
 	}, "Accent")
 
+	-- body = pembungkus yang di-clip & di-tween tingginya
+	-- inner = tempat elemen (auto-size), ini yang jadi Holder
 	local body = create("Frame", {
-		BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0),
-		AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 2, Visible = opened,
+		BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), LayoutOrder = 2,
+		AutomaticSize = opened and Enum.AutomaticSize.Y or Enum.AutomaticSize.None,
+		ClipsDescendants = not opened,
 	}, wrapper)
-	listLayout(body, 8)
+	local inner = create("Frame", {
+		BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+	}, body)
+	padding(inner, 0, 8, 0, 0)
+	listLayout(inner, 8)
 
-	local sec = setmetatable({ Window = win, Holder = body, Frame = wrapper }, Container)
+	local sec = setmetatable({ Window = win, Holder = inner, Frame = wrapper }, Container)
+	local animId = 0
+	local function scaleNow()
+		local u = win._uiScale
+		return math.max(u and u.Scale or 1, 0.05)
+	end
 	function sec:SetOpened(v)
-		opened = v and true or false
-		body.Visible = opened
-		tween(chev, 0.15, { Rotation = opened and 90 or 0 })
+		v = v and true or false
+		if v == opened then return end
+		opened = v
+		animId = animId + 1
+		local my = animId
+		tween(chev, 0.2, { Rotation = opened and 90 or 0 })
+		if opened then
+			local target = inner.AbsoluteSize.Y / scaleNow()
+			body.AutomaticSize = Enum.AutomaticSize.None
+			body.ClipsDescendants = true
+			tween(body, 0.25, { Size = UDim2.new(1, 0, 0, target) }, Enum.EasingStyle.Quint)
+			task.delay(0.27, function()
+				if animId == my and opened and body.Parent then
+					-- balik ke auto-size biar dropdown/paragraph tetep bisa berubah tinggi
+					body.AutomaticSize = Enum.AutomaticSize.Y
+					body.Size = UDim2.new(1, 0, 0, 0)
+					body.ClipsDescendants = false
+				end
+			end)
+		else
+			local h = body.AbsoluteSize.Y / scaleNow()
+			body.AutomaticSize = Enum.AutomaticSize.None
+			body.ClipsDescendants = true
+			body.Size = UDim2.new(1, 0, 0, h)
+			tween(body, 0.2, { Size = UDim2.new(1, 0, 0, 0) }, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+		end
 	end
 	head.MouseButton1Click:Connect(function() sec:SetOpened(not opened) end)
 	return sec
+end
+
+-- Grid kartu statistik (2x2 di window sempit, 4 kolom di window lebar)
+-- cfg.Items = { { Id = "eggs", Title = "Eggs Found", Value = "0" }, ... }
+-- obj:Set(id, value)
+function Container:CreateStats(cfg)
+	cfg = cfg or {}
+	local win = self.Window
+	local items = cfg.Items or {}
+	local CELL_H, GAP = 58, 8
+	local holder = create("Frame", {
+		BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, CELL_H), LayoutOrder = nextOrder(self),
+	}, self.Holder)
+	local grid = create("UIGridLayout", {
+		SortOrder = Enum.SortOrder.LayoutOrder, CellPadding = UDim2.fromOffset(GAP, GAP),
+		FillDirection = Enum.FillDirection.Horizontal,
+	}, holder)
+	local values = {}
+	for idx, it in ipairs(items) do
+		local c = create("Frame", { BorderSizePixel = 0, LayoutOrder = idx }, holder)
+		corner(c, 8)
+		bind(win, c, "BackgroundColor3", "Element")
+		bind(win, stroke(c), "Color", "Stroke")
+		padding(c, 12, 6, 8, 6)
+		create("UIListLayout", {
+			VerticalAlignment = Enum.VerticalAlignment.Center, SortOrder = Enum.SortOrder.LayoutOrder,
+		}, c)
+		mkLabel(win, c, {
+			Text = it.Title or "Stat", TextSize = 12, Size = UDim2.new(1, 0, 0, 16),
+			LayoutOrder = 1, TextTruncate = Enum.TextTruncate.AtEnd,
+		}, "SubText")
+		values[it.Id or tostring(idx)] = mkLabel(win, c, {
+			Text = tostring(it.Value or "-"), Font = Enum.Font.GothamBold, TextSize = 16,
+			Size = UDim2.new(1, 0, 0, 22), LayoutOrder = 2, TextTruncate = Enum.TextTruncate.AtEnd,
+		}, "Accent")
+	end
+	local function relayout()
+		local cols = cfg.Columns or ((win.Main.Size.X.Offset >= 700) and 4 or 2)
+		cols = math.max(1, math.min(cols, math.max(#items, 1)))
+		local rows = math.max(1, math.ceil(#items / cols))
+		grid.FillDirectionMaxCells = cols
+		grid.CellSize = UDim2.new(1 / cols, -(GAP * (cols - 1) / cols), 0, CELL_H)
+		holder.Size = UDim2.new(1, 0, 0, rows * CELL_H + (rows - 1) * GAP)
+	end
+	relayout()
+	win.Main:GetPropertyChangedSignal("Size"):Connect(relayout)
+	local obj = { Frame = holder }
+	function obj:Set(id, value)
+		local l = values[id]
+		if l then l.Text = tostring(value) end
+	end
+	function obj:Destroy() holder:Destroy() end
+	return obj
 end
 
 function Container:CreateDivider()
@@ -529,15 +618,38 @@ function Container:CreateButton(cfg)
 	local win = self.Window
 	local f, lock = mkElement(self, elHeight(cfg, 38))
 	mkHeader(self, f, cfg, 40)
-	mkLabel(win, f, {
+	local arrow = mkLabel(win, f, {
 		Text = ">", Font = Enum.Font.GothamBold, TextSize = 18,
 		Position = UDim2.new(1, -34, 0, 0), Size = UDim2.new(0, 24, 1, 0),
 		TextXAlignment = Enum.TextXAlignment.Center,
 	}, "Accent")
+	local st = f:FindFirstChildOfClass("UIStroke")
 	local btn = create("TextButton", { BackgroundTransparency = 1, Text = "", Size = UDim2.fromScale(1, 1) }, f)
-	btn.MouseEnter:Connect(function() tween(f, 0.15, { BackgroundColor3 = win.Theme.Banner }) end)
-	btn.MouseLeave:Connect(function() tween(f, 0.15, { BackgroundColor3 = win.Theme.Element }) end)
-	btn.MouseButton1Click:Connect(function() safe(cfg.Callback) end)
+	btn.MouseEnter:Connect(function()
+		tween(f, 0.15, { BackgroundColor3 = win.Theme.Banner })
+		tween(arrow, 0.15, { Position = UDim2.new(1, -28, 0, 0) })
+		if st then tween(st, 0.15, { Transparency = 0.1 }) end
+	end)
+	btn.MouseLeave:Connect(function()
+		tween(f, 0.15, { BackgroundColor3 = win.Theme.Element })
+		tween(arrow, 0.15, { Position = UDim2.new(1, -34, 0, 0) })
+		if st then tween(st, 0.15, { Transparency = 0.45 }) end
+	end)
+	btn.MouseButton1Down:Connect(function() tween(f, 0.08, { BackgroundColor3 = win.Theme.Sidebar }) end)
+	btn.MouseButton1Up:Connect(function() tween(f, 0.12, { BackgroundColor3 = win.Theme.Banner }) end)
+	btn.MouseButton1Click:Connect(function()
+		if win.IsMobile then
+			-- di HP MouseLeave sering gak kepanggil, balikin manual
+			task.delay(0.15, function()
+				if f.Parent then
+					tween(f, 0.15, { BackgroundColor3 = win.Theme.Element })
+					tween(arrow, 0.15, { Position = UDim2.new(1, -34, 0, 0) })
+					if st then tween(st, 0.15, { Transparency = 0.45 }) end
+				end
+			end)
+		end
+		safe(cfg.Callback)
+	end)
 	return finishObj({}, f, lock, win, cfg)
 end
 
@@ -575,6 +687,9 @@ function Container:CreateToggle(cfg)
 	end
 	function obj:Get() return state end
 	local btn = create("TextButton", { BackgroundTransparency = 1, Text = "", Size = UDim2.fromScale(1, 1) }, f)
+	btn.MouseEnter:Connect(function() tween(f, 0.15, { BackgroundColor3 = win.Theme.Banner }) end)
+	btn.MouseLeave:Connect(function() tween(f, 0.15, { BackgroundColor3 = win.Theme.Element }) end)
+
 	btn.MouseButton1Click:Connect(function() obj:Set(not state) end)
 	if state then safe(cfg.Callback, state) end
 	return finishObj(obj, f, lock, win, cfg)
@@ -973,8 +1088,62 @@ function Window:_refreshTabs()
 end
 
 function Window:SelectTab(tab)
+	local changed = self._activeTab ~= tab
 	self._activeTab = tab
 	self:_refreshTabs()
+	if changed and self._ready and self._fader then
+		-- fade-in: cover warna background memudar + page geser dikit dari bawah
+		self._fader.BackgroundTransparency = 0.55
+		tween(self._fader, 0.22, { BackgroundTransparency = 1 })
+		tab.Page.Position = UDim2.fromOffset(0, 10)
+		tween(tab.Page, 0.22, { Position = UDim2.fromOffset(0, 0) }, Enum.EasingStyle.Quint)
+	end
+end
+
+function Window:_ensureTip()
+	if self._tip then return self._tip end
+	local tip = create("CanvasGroup", {
+		AutomaticSize = Enum.AutomaticSize.X, Size = UDim2.fromOffset(0, 28),
+		AnchorPoint = Vector2.new(0, 0.5), BorderSizePixel = 0,
+		GroupTransparency = 1, Visible = false, ZIndex = 60,
+	}, self.Main)
+	corner(tip, 8)
+	bind(self, tip, "BackgroundColor3", "Banner")
+	bind(self, stroke(tip, 1, 0.1), "Color", "Accent")
+	padding(tip, 10, 0, 10, 0)
+	local lb = mkLabel(self, tip, {
+		Text = "", Font = Enum.Font.GothamMedium, TextSize = 13,
+		Size = UDim2.new(0, 0, 1, 0), AutomaticSize = Enum.AutomaticSize.X, ZIndex = 61,
+	})
+	self._tip = { Frame = tip, Label = lb, token = 0 }
+	return self._tip
+end
+
+-- tooltip cuma muncul pas sidebar compact (icon only)
+function Window:_tipShow(btn, text)
+	if not self._compact or self._minimized or self._destroyed then return end
+	local t = self:_ensureTip()
+	t.token = t.token + 1
+	t.Label.Text = text
+	local sc = math.max(self._uiScale.Scale, 0.01)
+	local mainPos = self.Main.AbsolutePosition
+	local sbEdge = (self._sidebar.AbsolutePosition.X + self._sidebar.AbsoluteSize.X - mainPos.X) / sc
+	local y = (btn.AbsolutePosition.Y - mainPos.Y + btn.AbsoluteSize.Y / 2) / sc
+	local x = sbEdge + 8
+	t.Frame.Position = UDim2.fromOffset(x - 8, y)
+	t.Frame.Visible = true
+	tween(t.Frame, 0.15, { GroupTransparency = 0, Position = UDim2.fromOffset(x, y) })
+end
+
+function Window:_tipHide()
+	local t = self._tip
+	if not t then return end
+	t.token = t.token + 1
+	local my = t.token
+	tween(t.Frame, 0.12, { GroupTransparency = 1 })
+	task.delay(0.13, function()
+		if t.token == my and t.Frame.Parent then t.Frame.Visible = false end
+	end)
 end
 
 function Window:CreateTab(name, icon)
@@ -1016,6 +1185,43 @@ function Window:CreateTab(name, icon)
 	function tab:Select() win:SelectTab(self) end
 	table.insert(win._tabs, tab)
 	btn.MouseButton1Click:Connect(function() win:SelectTab(tab) end)
+	local tipId = 0
+	btn.MouseEnter:Connect(function()
+		if win._activeTab ~= tab then
+			tween(btn, 0.15, { BackgroundColor3 = win.Theme.Accent, BackgroundTransparency = 0.9 })
+		end
+		tipId = tipId + 1
+		local my = tipId
+		task.delay(0.25, function()
+			if tipId == my then win:_tipShow(btn, name) end
+		end)
+	end)
+	btn.MouseLeave:Connect(function()
+		if win._activeTab ~= tab then
+			tween(btn, 0.15, { BackgroundTransparency = 1 })
+		end
+		tipId = tipId + 1
+		win:_tipHide()
+	end)
+	-- HP: tahan lama icon -> tooltip, lepas -> ilang setelah 1.2 detik
+	btn.InputBegan:Connect(function(i)
+		if i.UserInputType == Enum.UserInputType.Touch then
+			tipId = tipId + 1
+			local my = tipId
+			task.delay(0.4, function()
+				if tipId == my then win:_tipShow(btn, name) end
+			end)
+		end
+	end)
+	btn.InputEnded:Connect(function(i)
+		if i.UserInputType == Enum.UserInputType.Touch then
+			tipId = tipId + 1
+			local my = tipId
+			task.delay(1.2, function()
+				if tipId == my then win:_tipHide() end
+			end)
+		end
+	end)
 	if not win._activeTab then win._activeTab = tab end
 	win:_layout()
 	win:_refreshTabs()
@@ -1036,6 +1242,11 @@ function Window:CreateHome(cfg)
 	mkLabel(win, box, { Text = cfg.Title or "Welcome!", Font = Enum.Font.GothamBold, TextSize = 26, Size = UDim2.new(1, 0, 0, 32), LayoutOrder = 1, TextTruncate = Enum.TextTruncate.AtEnd })
 	mkLabel(win, box, { Text = cfg.Subtitle or "Script Hub", Font = Enum.Font.GothamMedium, TextSize = 16, Size = UDim2.new(1, 0, 0, 22), LayoutOrder = 2, TextTruncate = Enum.TextTruncate.AtEnd }, "Accent")
 	mkLabel(win, box, { Text = "by " .. (cfg.Author or "Unknown"), TextSize = 13, Size = UDim2.new(1, 0, 0, 20), LayoutOrder = 3 }, "SubText")
+	if cfg.Stats then
+		local statSec = tab:CreateSection({ Title = cfg.Stats.Title or "Session Stats", Opened = cfg.Stats.Opened ~= false })
+		tab.Stats = statSec:CreateStats(cfg.Stats)
+	end
+
 	local info = tab:CreateSection({ Title = "Information", Opened = false })
 	local grid = create("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 56), LayoutOrder = 1 }, info.Holder)
 	create("UIGridLayout", { CellSize = UDim2.new(1 / 3, -6, 1, 0), CellPadding = UDim2.fromOffset(9, 0), SortOrder = Enum.SortOrder.LayoutOrder }, grid)
@@ -1480,13 +1691,40 @@ function Ujayy:CreateWindow(cfg)
 		Position = UDim2.fromOffset(58, 30), Size = UDim2.new(1, -250, 0, 18), TextTruncate = Enum.TextTruncate.AtEnd,
 	}, "Accent")
 	win._tagHolder = create("Frame", {
-		BackgroundTransparency = 1, AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -118, 0, 17),
+		BackgroundTransparency = 1, AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -158, 0, 17),
 		Size = UDim2.fromOffset(0, 22), AutomaticSize = Enum.AutomaticSize.X,
 	}, header)
 	create("UIListLayout", {
 		FillDirection = Enum.FillDirection.Horizontal, HorizontalAlignment = Enum.HorizontalAlignment.Right,
 		Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder,
 	}, win._tagHolder)
+	if cfg.Avatar ~= false then
+		local av = create("Frame", {
+			Size = UDim2.fromOffset(34, 34), Position = UDim2.new(1, -150, 0, 11),
+			BorderSizePixel = 0,
+		}, header)
+		corner(av, 17)
+		bind(win, av, "BackgroundColor3", "Element")
+		bind(win, stroke(av, 2, 0), "Color", "Accent")
+		local avImg = create("ImageLabel", {
+			BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1),
+			Image = "rbxassetid://6023426926", ScaleType = Enum.ScaleType.Crop,
+		}, av)
+		corner(avImg, 17)
+		win._avatar = av
+		task.spawn(function()
+			local lp = Players.LocalPlayer
+			if not lp then return end
+			-- GetUserThumbnailAsync = jalur resmi Roblox buat thumbnail headshot
+			-- (URL CDN dari thumbnails.roblox.com gak bisa dipasang langsung ke ImageLabel)
+			local ok, content = pcall(function()
+				return Players:GetUserThumbnailAsync(lp.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
+			end)
+			local img = (ok and content) or ("rbxthumb://type=AvatarHeadShot&id=" .. lp.UserId .. "&w=150&h=150")
+			if not win._destroyed and avImg.Parent then avImg.Image = img end
+		end)
+	end
+
 	local function winButton(xOff, kind, cb)
 		local b = create("TextButton", {
 			BackgroundTransparency = 1, Text = "", Size = UDim2.fromOffset(30, 30),
@@ -1538,6 +1776,12 @@ function Ujayy:CreateWindow(cfg)
 		BackgroundTransparency = 1, Position = UDim2.fromOffset(194, 4),
 		Size = UDim2.new(1, -206, 1, -16), ClipsDescendants = true,
 	}, body)
+	win._fader = create("Frame", {
+		Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, BorderSizePixel = 0,
+		ZIndex = 30, Active = false,
+	}, win._pages)
+	bind(win, win._fader, "BackgroundColor3", "Background")
+
 	local grip = create("Frame", {
 		AnchorPoint = Vector2.new(1, 1), Position = UDim2.new(1, -3, 1, -3), Size = UDim2.fromOffset(24, 24),
 		BackgroundTransparency = 1, Active = true, ZIndex = 10,
@@ -1675,6 +1919,7 @@ local RARITY_COLOR = {
 }
 local RARITY_TIER = { Common=1, Rare=2, Epic=3, Legendary=4, Mythic=5, Divine=6, Ethereal=7 }
 
+local Notif -- forward declare: RecordFarm & handler candy manggil Notif sebelum didefinisikan
 local state = {
     infJump = false, speedValue = 16, jumpValue = 50,
     mutationWait = 10, baseEggPos = nil, baseCandyPos = nil,
@@ -1696,6 +1941,7 @@ local state = {
         bestEgg = nil },
 }
 
+state.stats.candyCollected = 0
 local candyRespawnAt, candyAmounts, candyLastCollect = {}, {}, {}
 local GLOBAL_CANDY_COOLDOWN = 0
 
@@ -2134,6 +2380,7 @@ local function CollectOneCandy(candy)
     task.wait(state.candyPickupDelay)
     local ok = pcall(function() CollectCandy:FireServer(candy.id) end)
     if not ok then return false end
+    state.stats.candyCollected = (state.stats.candyCollected or 0) + 1
     local now = os.clock()
     candyLastCollect[candy.id] = now
     GLOBAL_CANDY_COOLDOWN = now + 2
@@ -2395,18 +2642,48 @@ local Window = Ujayy:CreateWindow({
 })
 Window:Tag({ Title = "V1.0.5" })
 
-local function Notif(title, content, duration)
+Notif = function(title, content, duration)
     Window:Notify({ Title = title, Content = content, Duration = duration or 3 })
 end
 
-Window:CreateHome({
+local HomeTab = Window:CreateHome({
     Title = "Welcome!",
     Subtitle = "Ujayy Script Hub",
     Author = "Xnowplee",
     ScriptName = "Ujayy | Ride A Pet",
     Status = "Online",
+    Stats = {
+        Title = "Session Stats",
+        Items = {
+            { Id = "eggs",  Title = "Eggs Found",       Value = "0" },
+            { Id = "candy", Title = "Candy Collected",  Value = "0" },
+            { Id = "time",  Title = "Session Time",     Value = "00:00:00" },
+            { Id = "best",  Title = "Best Egg",         Value = "-" },
+        },
+    },
     Description = "Ujayy Script Hub untuk Ride A Pet.\nVersi V1.0.5 (Free) - by Xnowplee",
 })
+
+local function FormatTime(sec)
+    sec = math.max(0, math.floor(sec))
+    return string.format("%02d:%02d:%02d", math.floor(sec / 3600), math.floor((sec % 3600) / 60), sec % 60)
+end
+local function UpdateStats()
+    if not HomeTab or not HomeTab.Stats then return end
+    local s = state.stats
+    HomeTab.Stats:Set("eggs", s.farmed)
+    HomeTab.Stats:Set("candy", s.candyCollected or 0)
+    HomeTab.Stats:Set("time", FormatTime(os.clock() - s.startTime))
+    local b = s.bestEgg
+    HomeTab.Stats:Set("best", b and string.format("[%s] %s", b.rarity, b.name) or "-")
+end
+UpdateStats()
+task.spawn(function()
+    while task.wait(5) do
+        if Window._destroyed then break end
+        pcall(UpdateStats)
+    end
+end)
 
 local MainTab  = Window:CreateTab("Main Script", "rbxassetid://6031075931")   -- home
 local FarmTab  = Window:CreateTab("Farm", "rbxassetid://6031091004")          -- pickaxe
