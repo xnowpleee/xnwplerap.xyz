@@ -235,6 +235,221 @@ local function getLogo(custom)
 	return logoCache or nil
 end
 
+-- Icon bawaan (PNG putih, di-tint pakai warna theme). Pakai nama: "home", "script", "egg",
+-- "sparkle", "candy", "link", "wrench", "info", "gear". Bisa juga tetap pakai rbxassetid.
+local ICON_B64 = {
+	home = [=[
+iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAE7UlEQVR42u2aS4gcVRSG/36MaCIa1AkYkSBxBFHEbIyCoouAYiIqIsaAaxXNRl
+3oQvGRhYIgigYDoguRYRSEwRcJEcwY40YiJooLJcFXiEFHJZBMph+fi5yrh0tXuqa6urpnug5cuqrr3Dr3/HXOuX/dWxVAoyxVjbiUAIw6APUB
+gx8eQNvayABQk9SKnA7/LXkA6pKakq6QtFnSmKR3JX01EBCAoloFqNvxfcBx/pcm8LBdq5luIeMq0vmaHT/iHJ+31rbz50ynWhQIRThftSbgBf
+fE2w6INtCw4+1R30UNQNX9vmUONiLnvQQQ3gfOcinRtzFW+kiFQ0FbJmlK0kYrfr7wtiVhukGCzueS7pT0Zz+LY78ACJV+paRpSdcmOB94QCsB
+hO8k3SbpkLvn0DPBMNAJSbsTnG+a7b2SdpnzzYSpckbS2g73GMppMExz1wCHo7yO83wncLb1eS9Bt2m/fwHr7d5jw1oEg/O3AMciB2LnJzs4si
+1hhmi5KXNTZGsoAIgJTjMaeJjmwv+vuL4vAW+4Of9Z1zcGIZxvyZMw5UlwHnXOxs6H8ydN90zgHafzIbDCrm3p8PRjEHMjTP0mOC03+AdM90Jg
+xqXEvB1/DVxqOpuAuQ5plDth6ifBCQM/Dtxl+lcDP3QoeOH4N+AG010PzHapJT0TpizOB0PLgA+6VO8/gBtNf4NzqNGBBXrANluftcDPXWaTGe
+D8rCBkrfQrgS+7DOwgcKXpP+gcbJIsPucft76rgQNdbH0LXJJlhsji/ATwfZcB7QMuMv3nE4pjkni91+0eK4DdXWz+YhGzIBD6QXB2AcstHCcT
+imMaEML9PjbCVLWcz5Uw5U1wpkx3HNhzmnxPK6HvNy7EtycU3UyEKU+C85rpXgX8mIPzMQiHgevNxta8CFNeBOcp073VwjAv5+MQPwHcmydh6p
+XgANzvKn0rRaXPKt7mE2bzHuBkL4SpF4IzB9wRAZW20mcV/3SDYzcBf2clTJ2cT0NwZoHrTH8qY6XvBYQwrk+s2l8O/JqFMPmcF7AK2JuC4KwB
+zjmNbhESbB6wcY8D+1MQpgnvsy8Qq4BDKQjOxYb4wQE6H4/rCLAOOC8FYToKXGY+V/1cGRjbyYSOO9wr63SC7iAkvE1+4V61k1aYwnjfDDzBrw
+lOuLU62WptWIeblLRB0j92/US0qDnoHW5sTBVJ85LulrTNrS3iVqqbktaEhVnvwIx1wHWqS3rZ9vBadt42Q8O0tV6xhtt1fkjSM24htel82PMf
+eCEXLHSmo5DZGrGpWlT5G0OQAmFm+jQiPSG1H4umx8+Ac02nUnfhMSfpdkk3S1otaZ/t2FbdBsZikRDFNUkvStopaZ2kI5I+clFM3XUIIbQjyq
+92joNaaFj3Ki3zYb81f2/i7wN8oaj04auNyoCioe3qAnE01xNQy1ta1iopIsEXs3qOILQH8YVImEaflvR2yv29oLNR0qsd9g0X5ScyRyX9tMA+
+h5fSN0JjLqTTRsAZSwkAXB62U+ZrIdNu+aVoCUAJQAlACUAJQAlACcDISi9MENe66RRhgyIBCGtwtS7v+TWn228b1SIBaOjU6mu3V9VwPcsaQ8
+tsdFt9DtcbmZ5kxm+Fx3XqI+i0Mivp2AJtLJd0wQL05yT9XhQAI18EF5rXWYpUETbKCCiJUAlACcBoy79evn6nIlwRHAAAAABJRU5ErkJggg==
+]=],
+	script = [=[
+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
+i5iPAAAAAElFTkSuQmCC
+]=],
+	egg = [=[
+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
+]=],
+	sparkle = [=[
+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
+]=],
+	candy = [=[
+iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAFQklEQVR42u2bS4hcVRCG/9s9iYNGY5A4oxB8xehCiDFZKAQ1qLhSJj6yCj4SFF
+eKuHCThRoRdGkUURQUH0QhcYSgKzdRJAhRY5As1MQYMJDMaGQmj8l0z+emTiwPt7vv6e4ZF3MOXO6jz63HX3Wqq+p0F4Dm86hpno8MQAYgA5AB
+yABkADIAGYAMQAYgA5ABmJdjYI75FQZ6Yfe45+F+xj2ffYFK+gHFLAgQlG5WnF93YPTbAB74Ug/ABGj20eKB1iJJN0laJWm5pKU2Z0zSQUnfS/
+pO0gkHRL88olYGaOwB50taIOlvA6fRJ4Y3SHpc0oikZR3eOyppl6Q3Je1tJ3ziUm+YAQpJE+c8HRBQ2HkI2A+ss/u6+yzlqNv5YuBVYIp/RxOY
+bnE0+e/YCVwf0Uw5CmDArlcD+4AVdl8DFAOwGDhlgjxVolCVwzM84JSZBmboPJoG2EngOWAEWNmFHDV3/ajRA1jWDoAlwHEnzAfAhZFiVSx/Jz
+CRqLgHCmCjo/sIsCkBhCDrQuB1R/sUcEUnAP40gc/aSz86Cwy0WRIB8RuBSXu3QdoIyr9stC6w84P2fG0FEILyy4FvIiNMVQUAeyEINAk85ObW
+StZaDbgI+LlH5T911iuAy4BfbGn8AQwbr1qJAcKzEWCsxAOTAYgV2QYsKFkSwSLbImWqjsDjB7N63egvdFYMgXR7iRf46xdL6PYEQLgOxL4Grn
+YgBObXuUiesuZD5D8GXGW0zrPz+xGgQYabneLBEMPAF45mLH9PAMRuegy4J3LVbqwfgJ0GbjV6g3beUkIvXH/seAu4HTjchn/fAIiXxPPOE45G
+Fk1Z95sj5Te0+AYJ1xMmq4BnHM9GG6D7BkBQMjD9BLif9BFH/KD8GuB0m6UU+D4MvOVkbXbwtFIAQiocCqAlkn61M654aDWaLl8vKswPo2Hp6a
+ik9ZIWSpqWNCTpW0uXZ9qU66FQqso76HJW0gpJh0N63Ws/IBRNtQTlm6b8PkkbnRILJO005ZsdehVFl7xnpSFST6jWgtWOm+VPukLlHUm32HW9
+Ai0qzpuTjlBRUWBMwQckHZI0KGlK0hbzhkZCk6ZQn2rkXkfVej3Eiyck7Tblz0jaIGlrguU9oM3/GwC/BqkQ9F4xVw/Kr5H0nlsaRYLyRT8aN9
+0CgLPol5I2txHeR/xnLeJPSRq2oDeY6NIh6j8paYcDobuuURd5gP++fc2lo8dL3quS4zcSM8dQ1l5iMr/UIkljNlPhSUtEfIn8djQnJcdPSZ5m
+gM+MZyjM1gPjs5kK+9J4v9X8cTG00pRuuHPVHD+1alxXUgxdC+xx8/pWDPmU9EOr+VuVw+/avDOJOX5K6ryrpOXlO0BvlCzXrgFoOESfbtMjDM
+2IpcARe2dr5Padcnwq1B4ngCtbNGX8/SaLEz01REJL7Dfgtgpd4gDK3cBXUak8DPzeRbUYF173dmiJxV3gn5wulVtiYw6xz034qk3RwjUnBtyz
+biJ+HCceS5BjwHW5tzsapzsBsNh1c1/osi1eOAargN0uLsxU/KprOKuPW4+vqvJlMvueQdu2+KXAIeC+kkZj6sZIYZsaoyWRPGyENEru/Ri17m
+6q8l6vAMQdwMFWGyPhWARc3sNOTKtjLfAR8FcFD5gAdgB3demB7ZbEkO1WnTN60eLX4v3cHC3cvt6wlbyrJV3jNkfHbXN0r6Q9ko5EqXo/dolL
+dZqr7fG6K55mYzu96+3xYo7/L1BE1SORpwRrz8yZQPkPE/lHUhmADEAGIAOQAcgAZAAyABmADEAGIAMw/8Y/HD8CqdVBHH4AAAAASUVORK5CYI
+I=
+]=],
+	link = [=[
+iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAFMElEQVR42u1bS8scRRQ9/Zh8xkjAqETNykdAwUVIQOMDNN/CoKioZKF/QUVRhG
+xUoi7cGoQgCu5cGNz4WBgRfERBROMDEY0RRImBT6IgaEKmu4+be+FS1MxU9VTP9PBNQTEzPdU9dU7dR91bdzKSWM8txzpvSwKWBCwJWLiWSU/S
+ygUBXQjoRroSkctrDaCVO8t67gYLAUxHAgoAVcDYhZaAQlYWAG4FcAeAXQC2AVgBcBrACQCfAHgLwCmj1k3wr5DsW89I5vL+NpJHObmdJvkCyQ
+vkviL09/oIXid/wACsSQ5JVvJeeyXXtX1H8roYEvpkA9So1QAOAnjU6HThCq7jCSg2YQDgTwCrAL4PUYe+EOADPxQblRmQtbFbPnIq+f5nsRf/
+yhj2eR/gA6+rmRmwmQFfyT2FA64U4rYDOCD35X02glbnD4oeDx0DV8nrHyQfJ7mD5NUk95I8bGxEI+8b+fwfyW3y7LyPRjAEvH7+2oBx+8OGBP
+e+J2RM2TcCYsFfImMHspq53D+Q66870lKJJLw7ySMsEngfiELI2O1Igb7+aMQ/880n74nBKz2W/BsAt4tbs7tC2zQ2+FUsfu64yM0ANvYlGkwN
+3kaGK+I17L5An1f3hYAiMXgYN3gzgA0y1m6Q1gCclWucpxtU/X1GdPNcS523XXX7fNH1xuj+UD6/1gcvoEBudCaXAvwKyfc8blC9wT3z9gKZcV
+2fOpOzk54WvPvMhuRxkhtkDtk8CCgMmB2eVdKJfk7y0inAuy5U1eu+kGd2LfYguYfkEUdH9f0Z8eGYtGWNBP9yaEjcZTJjleRnZnKNJ5FRk/yb
+5Eskt4yZdAz4N4z0ZbMkwO7wnnVA1gFZnRMkb/CQEAs+m6T3XRDg295WjnEa1RoD4B+S1xvgbcDnE1QpOQE+8OcckW8CiFBgv5G8yDyzM/ApCA
+gJbELE3yXhVXnmeV2Cn5aAGPBnA6WgkT4kuZPk212Cn4aAmJD2K9kHrEUYRCXNJ0HJwLclIDae3ypjnx4RB4xrnYJvQ0DbZEYpxuxYBAlN1+Bj
+CZgmk6MTvZLk7yM8xTgpGHYBPoaAFGksnfB2kl8GArf7iEPyjCwV+BgCUubwQHIjyefEMFYTJOFbkvebhciYcPseA/6pRMmM3IC4Qg42G0OCeo
+ovSN5lMr95avAhBCiQ3YmTGRnJTSTfCUxmFOwobAfD4u+PPImHqoNMjuYIfhE1KbtY9VACdLK7nFg+ZSZn1A5vX+w5f9ueB2SM7zb1OfZoeg3A
+nYHZWz2mXpFqjr2erPBQUtuvAHgz4JmdV4lpGnmnycHDpJ5flLKUQULwhwE8ZOp9Om/jaoR0Apc5BOh5/AeOZKQA/4BnAeYuAQPPaQwAnJlQfN
+AGfDb2EGPGBOh3fzmEqLhfa467UoHHrEQ/hoCfRqz0I+Z6KeNzAbUQ4Ccdjelx0r4xBxrPj7h3c9eZnFR9XJGUrsomAMcBbHUkQ+tv3gdwCMAP
+suo3AXhS6nRqp4ipPysfeDiqG5HHRsQBvrKUmSUzupYAtyD5QwC3mFWEYxQLZ5+Q93rlI+oEtericgAfA7jKU8PnK160FRxlH8GHFkhojd5JAH
+sAHDU1fLWpwqCM1WtqI0qxEQ96NlnzbxH6khvvsJ/kyYCszjGS93aVzJiFDRi1wQGACyVQWgVwDYCLZeVPSZnLEfEQTdta/r7YgHHFTm5c0XjE
+eyZR3SwJcP+5QWd1c2M4e7nqXVWLZ7OM4mYRDkfbUyxgW/5vcEnAkoD13f4HK6KFau7oUl8AAAAASUVORK5CYII=
+]=],
+	wrench = [=[
+iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAEYklEQVR42u2aTYgURxTHf/2hl92wIipJSPDguiZgRM1C8CJhSe4bguhJ9LLkkn
+NOyUWEzUEhuYlCCAkkkEgWk80lh0D04MHdPehNXTUBk8jKhhhwP3r6edhXWjY92x+Tma7unYJipnuqp+r/f/969epVeyLCRi4+G7xseAJCx8fn
+qZE8vRbrvrmOrfvFO3DUBxjQrZztA4uMWivAWNwAHwQOAgeAYWC7tlkA5oE5YBb4xyKikCJcUoBvWXAvMAGMA69mPPcn8BNwDpgp3KuIuFAD/d
+wiIp+LyLI8Ky0RWW1TW4l2X4rIyyLiac3s2wUFhEAEvAl8Dbym9yOVtJdlQ20bAkvA68Dv+lzsug8IdPDvAD/onDfAwwJ+w9QjwD19vuW6EzTO
+bj8wBQzoddExmWfOA9OWopx2gsZig+q4hhVIUPB/YiXythL5uOgq4Fdo/Rg4reCjEuDFqieB/xLBkrMEGOnvAT5QIoIS/2MU8ylwWaXfKjOYqv
+YfH+qg4xyevt28nwM+yeH0vHZ99NoHeCrRAeAm8JI1j4tIP1bAo8D1FAJ8C3S83nIYViT/gwpeSqjQWP8jBb8psXpEKYBfUDL+rZoAI8PRBJii
+4H8DPgM2AyvWimDKK8AbwFsaYI0CF4CPk8tkVXHAcIlnjFoWgPcsEAPAiAI1gEf0vl32pK0SvSbAdL6txLPGwmd1zX9bwe5Ti6e1N3UTsNUFAj
+oNm2Od+0Mpv0cJB+hbPqftKlCVD1jswIkOWZb1LLBhhuoWE2OoVAG3OpxGfonVYz6NAL8iHzDbQf9eyfbXXIgEY2swC9q/dJnwQDdJV1KWy0oU
+EGhA8qO1tnertLTPX4D7ibRbZdthk8HdDdzImfXphIAAGAN+Tdsz9FoBniXD412eAmaLPa3g/TS19VIBnpUCm9T1PO6SEYzMH2nQdI82OUK/Qv
+BRl8H7qrK7aXO/lwS0Ax92SfYmRpgALmUmSrqc7/dEJNTvk5q/X5X1S0trJCKxZJdY25ozgociMq59hlljdBF8skTWQUiUcm2XKREZzgu+mwSU
+Ab+in9+IyJiIfCsiizkU8EhELorIuyknTZWcDJWZ86u6Zf0eOGbN2ReBQ7rt3cWzw9GHGtvPAFeBPxI+Lf8psUOW/05EfOs/ggL9+gXbP62hQ5
+Y/qkGRZ+3t7RckhOdfkPASiY+Swblblvd7fTK9ocH/HwTUGnynBNQefCcENAJ8WQIaA74MAY0CX5SAxoEvQkAjwRchIGgi+LwEmIGfaRr4PLtB
+k0U9AXxhxe5FY/sYR0sWAWbTMavn7Sav3wjwWTlBswMbAnZmnMfVEnzepOhj1l5Ba/f+XVRX8FkEGLkvAT9r21VrXx7rdVhX8Hl9AMAOPVxMe7
+VlCni/juDzTAHDzt/AYeAr4IFOizvAKdZeUJbCubiaKCDpEAG2qGP8C1hO+b2RBNj5uVYiTojrCr7s4aiXkqSsbSmTFW4E8KreD+gT0CegT0Cf
+AKfKE7kZB/VXDZc3AAAAAElFTkSuQmCC
+]=],
+	info = [=[
+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
+]=],
+	gear = [=[
+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
+]=],
+}
+
+local iconCache = {}
+local function getIconAsset(name)
+	if type(name) ~= "string" then return nil end
+	if iconCache[name] ~= nil then return iconCache[name] or nil end
+	local data = ICON_B64[name]
+	if not data then
+		iconCache[name] = false
+		return nil
+	end
+	local ok, res = pcall(function()
+		assert(type(writefile) == "function" and type(getcustomasset) == "function")
+		if type(makefolder) == "function" and type(isfolder) == "function" and not isfolder("Ujayy") then
+			makefolder("Ujayy")
+		end
+		local path = "Ujayy/icon_v1_" .. name .. ".png"
+		if not (type(isfile) == "function" and isfile(path)) then
+			writefile(path, b64decode(data))
+		end
+		return getcustomasset(path)
+	end)
+	iconCache[name] = (ok and res) or false
+	return iconCache[name] or nil
+end
+
 local function bind(win, inst, prop, key)
 	table.insert(win._bindings, { inst, prop, key })
 	inst[prop] = win.Theme[key]
@@ -431,6 +646,7 @@ function Container:CreateSection(arg)
 	local cfg = type(arg) == "table" and arg or { Title = arg }
 	local win = self.Window
 	local opened = cfg.Opened ~= false
+	if win.StartCollapsed then opened = false end
 
 	local wrapper = create("Frame", {
 		BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0),
@@ -1157,10 +1373,10 @@ function Window:CreateTab(name, icon)
 	local st = create("UIStroke", { Thickness = 1, Enabled = false, Transparency = 0.3 }, btn)
 	local badge = create("Frame", { Size = UDim2.fromOffset(24, 24), Position = UDim2.new(0, 8, 0.5, -12), BorderSizePixel = 0 }, btn)
 	corner(badge, 7)
-	local img = iconId(icon)
+	local img = getIconAsset(icon) or iconId(icon)
 	local glyph
 	if img then
-		glyph = create("ImageLabel", { BackgroundTransparency = 1, Size = UDim2.fromOffset(16, 16), Position = UDim2.fromOffset(4, 4), Image = img }, badge)
+		glyph = create("ImageLabel", { BackgroundTransparency = 1, Size = UDim2.fromOffset(18, 18), Position = UDim2.fromOffset(3, 3), Image = img }, badge)
 	else
 		glyph = create("TextLabel", {
 			BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1),
@@ -1231,7 +1447,7 @@ end
 function Window:CreateHome(cfg)
 	cfg = cfg or {}
 	local win = self
-	local tab = self:CreateTab(cfg.TabName or "Home", cfg.Icon)
+	local tab = self:CreateTab(cfg.TabName or "Home", cfg.Icon or "home")
 	local banner = create("Frame", { Size = UDim2.new(1, 0, 0, 112), BorderSizePixel = 0, ClipsDescendants = true, LayoutOrder = nextOrder(tab) }, tab.Holder)
 	corner(banner, 12)
 	bind(win, banner, "BackgroundColor3", "Banner")
@@ -1275,7 +1491,7 @@ end
 function Window:CreateSettings(cfg)
 	cfg = cfg or {}
 	local win = self
-	local tab = self:CreateTab(cfg.TabName or "Settings", cfg.Icon)
+	local tab = self:CreateTab(cfg.TabName or "Settings", cfg.Icon or "gear")
 	local appearance = tab:CreateSection({ Title = "Appearance", Opened = false })
 	appearance:CreateDropdown({
 		Name = "Theme", Desc = "Ganti warna UI",
@@ -1645,6 +1861,7 @@ function Ujayy:CreateWindow(cfg)
 	win.Theme = Themes[win.ThemeName]
 	win.Window = win
 	win.ToggleKey = cfg.ToggleKey or Enum.KeyCode.RightShift
+	win.StartCollapsed = cfg.StartCollapsed ~= false -- true = semua section tertutup pas load
 	win.LogoImage = getLogo(cfg.Logo)
 	local guiParent = getGuiParent()
 	local old = guiParent:FindFirstChild("UjayyUI")
@@ -2685,13 +2902,13 @@ task.spawn(function()
     end
 end)
 
-local MainTab  = Window:CreateTab("Main Script", "rbxassetid://6031075931")   -- home
-local FarmTab  = Window:CreateTab("Farm", "rbxassetid://6031091004")          -- pickaxe
-local SmartTab = Window:CreateTab("Smart Farm", "rbxassetid://6031265976")    -- sparkle
-local CandyTab = Window:CreateTab("Farm Candy", "rbxassetid://6034684930")    -- candy
-local IntTab   = Window:CreateTab("Integration", "rbxassetid://6031094667")   -- link
-local UtilTab  = Window:CreateTab("Utility", "rbxassetid://6031280882")       -- settings
-local InfoTab  = Window:CreateTab("Info", "rbxassetid://6031075925")          -- info
+local MainTab  = Window:CreateTab("Main Script", "script")  -- script/code
+local FarmTab  = Window:CreateTab("Farm", "egg")  -- egg
+local SmartTab = Window:CreateTab("Smart Farm", "sparkle")  -- sparkle
+local CandyTab = Window:CreateTab("Farm Candy", "candy")  -- candy
+local IntTab   = Window:CreateTab("Integration", "link")  -- link
+local UtilTab  = Window:CreateTab("Utility", "wrench")  -- wrench
+local InfoTab  = Window:CreateTab("Info", "info")  -- info
 
 local AuthorSection = MainTab:CreateSection({ Title = "Author", Opened = false })
 AuthorSection:CreateParagraph({ Title = "Xnowplee", Content = "Script Developer | V1.0.5 (Free) | discord.gg/6byStpCzv" })
